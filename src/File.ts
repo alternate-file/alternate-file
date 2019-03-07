@@ -121,4 +121,4 @@ const writeFile = resultify(promisify(fs.writeFile));
 const access = resultify(promisify(fs.access));
 const unlink = resultify(promisify(fs.unlink));
 
-const always = <T>(x: T) => (...args: any[]) => x;
+const always = <T>(x: T) => (..._args: any[]) => x;

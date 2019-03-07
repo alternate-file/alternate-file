@@ -2,7 +2,7 @@ import * as Projection from "./Projections";
 
 describe("Projection", () => {
   it("projectionsToAlternatePatterns parses *", () => {
-    const projections: Projection.t = {
+    const projections: Projection.Projections = {
       "src/*.ts": { alternate: "src/test/{}.test.ts" },
       "app/*.rb": { alternate: "test/{}_spec.rb" }
     };
@@ -20,7 +20,7 @@ describe("Projection", () => {
   });
 
   it("projectionsToAlternatePatterns parses ** and *", () => {
-    const projections: Projection.t = {
+    const projections: Projection.Projections = {
       "src/**/*.ts": { alternate: "src/{dirname}/__test__/{basename}.test.ts" }
     };
 
@@ -33,7 +33,7 @@ describe("Projection", () => {
   });
 
   it("projectionsToAlternatePatterns parses multiple", () => {
-    const projections: Projection.t = {
+    const projections: Projection.Projections = {
       "src/*.ts": {
         alternate: [
           "src/test/{}.test.ts",

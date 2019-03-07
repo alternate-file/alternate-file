@@ -24,7 +24,7 @@
   "icon": "assets/icon.png",
   "main": "./lib/index.js",
   "scripts": {
-    "compile": "tsc -p ./",
+    "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "jest",
     "lint": "npm run lint-tslint && npm run lint-prettier",
@@ -45,7 +45,9 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
+    "@types/find-up": "^2.1.1",
     "@types/node": "^11.10.0",
+    "find-up": "^3.0.0",
     "remeda": "0.0.9",
     "result-async": "^1.0.0"
   }

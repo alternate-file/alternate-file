@@ -30,10 +30,10 @@ export const zip = <T, U>(array1: T[], array2: U[]): [T, U][] =>
 
 /**
  * Pipeable version of String.replace
- * @param pattern - The pattern to replace
- * @param replacement  - The value to replace the pattern with
+ * @param searchValue - The pattern to replace
+ * @param replaceValue  - The value to replace the pattern with
  * @returns the updated string.
  */
-export const replace = (pattern: RegExp | string, replacement: string) => (
-  string: string
-): string => string.replace(pattern, replacement);
+export const replace = (searchValue: RegExp | string, replaceValue: string) => (
+  oldString: string
+): string => oldString.replace(searchValue, replaceValue);

@@ -5,5 +5,7 @@ module.exports = {
 
   clearMocks: true,
 
-  coverageDirectory: "coverage"
+  coverageDirectory: "coverage",
+
+  testMatch: ["**/src/**/*.test.ts"]
 };

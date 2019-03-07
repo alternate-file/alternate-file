@@ -16,12 +16,12 @@ import {
   mapOk,
   asyncChainError
 } from "result-async";
-import * as AlternateFileNotFoundError from "./AlternateFileNotFoundError";
+import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
 
 /**
  * the data type for a .projections.json file.
  */
-export interface t {
+export interface Projections {
   [sourcePattern: string]: SourceData;
 }
 
@@ -43,7 +43,7 @@ const basenameRegex = /\{\}|\{basename\}/;
  */
 export const findAlternateFile = async (
   userFilePath: string
-): ResultP<string, AlternateFileNotFoundError.t> => {
+): ResultP<string, AlternateFileNotFoundError> => {
   const result = await findProjectionsFile(userFilePath);
 
   if (!isOk(result)) {
@@ -72,11 +72,11 @@ export const findAlternateFile = async (
  */
 export const findOrCreateAlternateFile = async (
   userFilePath: string
-): ResultP<string, AlternateFileNotFoundError.t> => {
+): ResultP<string, AlternateFileNotFoundError> => {
   return pipeAsync(
     userFilePath,
     findAlternateFile,
-    asyncChainError(async (err: AlternateFileNotFoundError.t) => {
+    asyncChainError(async (err: AlternateFileNotFoundError) => {
       const alternatesAttempted = err.alternatesAttempted || [];
       if (alternatesAttempted.length === 0) {
         return error({
@@ -106,7 +106,7 @@ export const findOrCreateAlternateFile = async (
  * @param projections
  */
 export const projectionsToAlternatePatterns = (
-  projections: t
+  projections: Projections
 ): AlternatePattern.t[] => {
   const pairs = R.toPairs(projections) as ProjectionPair[];
   const allPairs = R.flatten(pairs.map(splitOutAlternates));
@@ -126,12 +126,12 @@ export const findProjectionsFile = async (userFilePath: string) =>
  */
 export const readProjections = async (
   projectionsPath: string
-): ResultP<t, AlternateFileNotFoundError.t> => {
+): ResultP<Projections, AlternateFileNotFoundError> => {
   return pipeAsync(
     projectionsPath,
     File.readFile,
     mapOk((data: string): string => (data === "" ? "{}" : data)),
-    chainOk((x: string) => File.parseJson<t>(x, projectionsPath)),
+    chainOk((x: string) => File.parseJson<Projections>(x, projectionsPath)),
     mapError((err: string) => ({
       startingFile: projectionsPath,
       message: err
@@ -165,7 +165,7 @@ const alternatePathIfExists = (
   projectionsPath: string
 ) => (
   patterns: AlternatePattern.t[]
-): ResultP<string, AlternateFileNotFoundError.t> => {
+): ResultP<string, AlternateFileNotFoundError> => {
   return pipeAsync(
     patterns,
     R.map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
