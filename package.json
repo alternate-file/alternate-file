@@ -23,9 +23,16 @@
   },
   "icon": "assets/icon.png",
   "main": "./lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm test",
+    "preversion": "npm run lint && npm run test",
     "test": "jest",
     "lint": "npm run lint-tslint && npm run lint-prettier",
     "lint-tslint": "tslint -p . --config tslint.json",
