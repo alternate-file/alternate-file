@@ -1,6 +1,9 @@
 # alternate-file
 
-[![David Dependency Status](https://david-dm.org/alternate-file/vscode-alternate-file.svg)](https://david-dm.org/alternate-file/alternate-file)
+[![npm package](https://img.shields.io/npm/v/alternate-file.svg)](https://www.npmjs.com/package/alternate-file)
+[![CircleCI](https://img.shields.io/circleci/project/github/alternate-file/alternate-file/master.svg)](https://circleci.com/gh/alternate-file/alternate-file)
+[![codecov](https://img.shields.io/codecov/c/github/alternate-file/alternate-file.svg)](https://codecov.io/gh/alternate-file/alternate-file)
+[![David Dependency Status](https://img.shields.io/david/alternate-file/alternate-file.svg)](https://david-dm.org/alternate-file/alternate-file)
 
 In Vim, you can often go to the "alternate file" for the active buffer - usually the spec file for an implementation, or vice versa - by pressing `:A`. This extension adds exposes core functionality to build that behaviour into other editors, and also includes a CLI tool for broader integration.
 
