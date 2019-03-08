@@ -25,7 +25,7 @@ export type t = string;
  * @param fromFilePath - The file to start looking from
  * @return the full path/"not found"
  */
-export const findFile = (fileName: string) => async (
+export const findFileFrom = (fileName: string) => async (
   fromFilePath: string
 ): ResultP<string, string> => {
   const filePath = await findUp(fileName, { cwd: fromFilePath });
@@ -87,6 +87,20 @@ export const readFile = (path: string): ResultP<string, any> =>
   fsReadFile(path, "utf8") as ResultP<string, any>;
 
 /**
+ * Checks if a file exists and is readable.
+ * @param filePath - The file path to check for
+ * @returns Ok(path) if the file exist, Error(null) if it doesn't.
+ */
+export const fileExists = async (filePath: t): ResultP<t, string> => {
+  return pipeAsync(
+    filePath,
+    (filePath: string) => access(filePath, fs.constants.R_OK),
+    mapOk(always(filePath)),
+    mapError(always(filePath))
+  );
+};
+
+/**
  * Wrap a JSON parse in a
  * @returns Ok(body)
  */
@@ -107,15 +121,6 @@ export const parseJson = <T>(
  * @returns a ResultP<file contents, error>
  */
 export const fsReadFile = resultify(promisify(fs.readFile));
-
-const fileExists = async (filePath: t): ResultP<t, null> => {
-  return pipeAsync(
-    filePath,
-    (filePath: string) => access(filePath, fs.constants.R_OK),
-    mapOk(always(filePath)),
-    mapError(always(null))
-  );
-};
 
 const writeFile = resultify(promisify(fs.writeFile));
 const access = resultify(promisify(fs.access));

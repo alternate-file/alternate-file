@@ -32,7 +32,7 @@ export interface SourceData {
 type ProjectionPair = [string, SourceData];
 type SingleProjectionPair = [string, { alternate: string }];
 
-const projectionsFilename = ".projections.json";
+export const projectionsFilename = ".projections.json";
 const starRegex = /\*/;
 const basenameRegex = /\{\}|\{basename\}/;
 
@@ -117,7 +117,7 @@ export const projectionsToAlternatePatterns = (
 export const create = () => {};
 
 export const findProjectionsFile = async (userFilePath: string) =>
-  File.findFile(projectionsFilename)(userFilePath);
+  File.findFileFrom(projectionsFilename)(userFilePath);
 
 /**
  * Read and parse the projections file.
