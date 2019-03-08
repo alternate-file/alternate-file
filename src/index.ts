@@ -7,4 +7,7 @@ export {
   AlternateFileNotFoundError,
   isAlternateFileNotFoundError
 } from "./AlternateFileNotFoundError";
-export { initializeProjections } from "./InitializeProjections";
+export {
+  initializeProjections,
+  possibleFrameworks
+} from "./InitializeProjections";

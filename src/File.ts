@@ -6,8 +6,8 @@ import { promisify } from "util";
 import {
   error,
   firstOk,
-  mapError,
-  mapOk,
+  ifError,
+  ifOk,
   ok,
   pipeAsync,
   replaceError,
@@ -46,8 +46,8 @@ export const makeFile = async (
   return pipeAsync(
     path,
     path => writeFile(path, contents, { flag: "wx" }),
-    mapOk(always(path)),
-    mapError(always(`${path} already exists`))
+    ifOk(always(path)),
+    ifError(always(`${path} already exists`))
   );
 };
 
@@ -76,7 +76,7 @@ export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
     R.map(fileExists),
     files => Promise.all(files),
     file => firstOk(file),
-    mapError(always(filePaths))
+    ifError(always(filePaths))
   );
 };
 
@@ -95,8 +95,8 @@ export const fileExists = async (filePath: t): ResultP<t, string> => {
   return pipeAsync(
     filePath,
     (filePath: string) => access(filePath, fs.constants.R_OK),
-    mapOk(always(filePath)),
-    mapError(always(filePath))
+    ifOk(always(filePath)),
+    ifError(always(filePath))
   );
 };
 

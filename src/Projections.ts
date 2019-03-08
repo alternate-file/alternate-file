@@ -9,11 +9,11 @@ import {
   ResultP,
   isOk,
   chainOk,
-  mapError,
+  ifError,
   ok,
   error,
   either,
-  mapOk,
+  ifOk,
   asyncChainError
 } from "result-async";
 import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
@@ -59,7 +59,7 @@ export const findAlternateFile = async (
   return pipeAsync(
     projectionsPath,
     readProjections,
-    mapOk(projectionsToAlternatePatterns),
+    ifOk(projectionsToAlternatePatterns),
     asyncChainOk(alternatePathIfExists(normalizedUserFilePath, projectionsPath))
   );
 };
@@ -130,9 +130,9 @@ export const readProjections = async (
   return pipeAsync(
     projectionsPath,
     File.readFile,
-    mapOk((data: string): string => (data === "" ? "{}" : data)),
+    ifOk((data: string): string => (data === "" ? "{}" : data)),
     chainOk((x: string) => File.parseJson<Projections>(x, projectionsPath)),
-    mapError((err: string) => ({
+    ifError((err: string) => ({
       startingFile: projectionsPath,
       message: err
     }))
@@ -171,7 +171,7 @@ const alternatePathIfExists = (
     R.map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
     paths => R.compact(paths) as string[],
     File.findExisting,
-    mapError((alternatesAttempted: string[]) => ({
+    ifError((alternatesAttempted: string[]) => ({
       alternatesAttempted,
       message: `No alternate found for ${userFilePath}. Tried: ${alternatesAttempted}`,
       startingFile: userFilePath

@@ -1,7 +1,7 @@
 import * as path from "path";
 import {
   isOk,
-  mapOk,
+  ifOk,
   error,
   replaceError,
   ResultP,
@@ -58,8 +58,8 @@ export async function possibleFrameworks(): ResultP<
   return pipeAsync(
     sampleProjectionsDirectory,
     ls,
-    mapOk(map(frameworkFromSampleFilename)),
-    mapOk(frameworkNamesToTitlePair)
+    ifOk(map(frameworkFromSampleFilename)),
+    ifOk(frameworkNamesToTitlePair)
   );
 }
 
