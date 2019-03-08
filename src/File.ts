@@ -6,8 +6,8 @@ import { promisify } from "util";
 import {
   error,
   firstOk,
-  mapError,
-  mapOk,
+  ifError,
+  ifOk,
   ok,
   pipeAsync,
   replaceError,
@@ -25,7 +25,7 @@ export type t = string;
  * @param fromFilePath - The file to start looking from
  * @return the full path/"not found"
  */
-export const findFile = (fileName: string) => async (
+export const findFileFrom = (fileName: string) => async (
   fromFilePath: string
 ): ResultP<string, string> => {
   const filePath = await findUp(fileName, { cwd: fromFilePath });
@@ -46,8 +46,8 @@ export const makeFile = async (
   return pipeAsync(
     path,
     path => writeFile(path, contents, { flag: "wx" }),
-    mapOk(always(path)),
-    mapError(always(`${path} already exists`))
+    ifOk(always(path)),
+    ifError(always(`${path} already exists`))
   );
 };
 
@@ -76,7 +76,7 @@ export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
     R.map(fileExists),
     files => Promise.all(files),
     file => firstOk(file),
-    mapError(always(filePaths))
+    ifError(always(filePaths))
   );
 };
 
@@ -85,6 +85,28 @@ export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
  */
 export const readFile = (path: string): ResultP<string, any> =>
   fsReadFile(path, "utf8") as ResultP<string, any>;
+
+/**
+ * Checks if a file exists and is readable.
+ * @param filePath - The file path to check for
+ * @returns Ok(path) if the file exist, Error(null) if it doesn't.
+ */
+export const fileExists = async (filePath: t): ResultP<t, string> => {
+  return pipeAsync(
+    filePath,
+    (filePath: string) => access(filePath, fs.constants.R_OK),
+    ifOk(always(filePath)),
+    ifError(always(filePath))
+  );
+};
+
+export async function ls(directoryPath: string): ResultP<string[], string> {
+  return pipeAsync(
+    directoryPath,
+    readdir,
+    replaceError(`${directoryPath} not found`)
+  );
+}
 
 /**
  * Wrap a JSON parse in a
@@ -108,17 +130,12 @@ export const parseJson = <T>(
  */
 export const fsReadFile = resultify(promisify(fs.readFile));
 
-const fileExists = async (filePath: t): ResultP<t, null> => {
-  return pipeAsync(
-    filePath,
-    (filePath: string) => access(filePath, fs.constants.R_OK),
-    mapOk(always(filePath)),
-    mapError(always(null))
-  );
-};
-
 const writeFile = resultify(promisify(fs.writeFile));
 const access = resultify(promisify(fs.access));
 const unlink = resultify(promisify(fs.unlink));
+const readdirP = promisify(fs.readdir);
+const readdir: (path: string) => ResultP<string[], any> = resultify(
+  (path: string) => readdirP(path)
+);
 
 const always = <T>(x: T) => (..._args: any[]) => x;
