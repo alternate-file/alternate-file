@@ -3,4 +3,8 @@ export {
   findOrCreateAlternateFile,
   Projections
 } from "./Projections";
-export * from "./AlternateFileNotFoundError";
+export {
+  AlternateFileNotFoundError,
+  isAlternateFileNotFoundError
+} from "./AlternateFileNotFoundError";
+export { initializeProjections } from "./InitializeProjections";

@@ -2,85 +2,103 @@ import * as path from "path";
 import * as tmp from "tmp";
 import { ok, assertOk } from "result-async";
 
-import { initializeProjections } from "./InitializeProjections";
+import {
+  initializeProjections,
+  possibleFrameworks
+} from "./InitializeProjections";
 import { fileExists, readFile } from "./File";
 import { projectionsFilename } from "./Projections";
 
 describe("InitializeProjections", () => {
-  let testDirectory: string;
-  let testProjectionsPath: string;
-  let testDirectoryCleaner: () => void;
+  describe("possibleFrameworks", () => {
+    it("starts with Empty", async () => {
+      const frameworks = assertOk(await possibleFrameworks());
 
-  async function expectProjectionsToExist() {
-    return expect(await fileExists(testProjectionsPath)).toHaveProperty("ok");
-  }
-
-  async function expectProjectionsNotToExist() {
-    return expect(await fileExists(testProjectionsPath)).toHaveProperty(
-      "error"
-    );
-  }
-
-  // Create a temp directory to do file operations.
-  beforeEach(done => {
-    tmp.dir({ unsafeCleanup: true }, (err, dirPath, cleanupCallback) => {
-      if (err) throw err;
-
-      testDirectory = dirPath;
-      testProjectionsPath = path.resolve(testDirectory, projectionsFilename);
-      testDirectoryCleaner = cleanupCallback;
-
-      done();
+      expect(frameworks[0]).toEqual(["Empty", ""]);
+    });
+    it("looks up framework files", async () => {
+      const frameworks = assertOk(await possibleFrameworks());
+      expect(frameworks).toContainEqual(["React", "react"]);
     });
   });
+  describe("initializeProjections", () => {
+    let testDirectory: string;
+    let testProjectionsPath: string;
+    let testDirectoryCleaner: () => void;
 
-  // Delete temp directory after every test.
-  afterEach(() => {
-    testDirectoryCleaner();
-  });
+    async function expectProjectionsToExist() {
+      return expect(await fileExists(testProjectionsPath)).toHaveProperty("ok");
+    }
 
-  it("creates a new empty file", async () => {
-    await expectProjectionsNotToExist();
+    async function expectProjectionsNotToExist() {
+      return expect(await fileExists(testProjectionsPath)).toHaveProperty(
+        "error"
+      );
+    }
 
-    await initializeProjections(testDirectory, "");
+    // Create a temp directory to do file operations.
+    beforeEach(done => {
+      tmp.dir({ unsafeCleanup: true }, (err, dirPath, cleanupCallback) => {
+        if (err) throw err;
 
-    await expectProjectionsToExist();
+        testDirectory = dirPath;
+        testProjectionsPath = path.resolve(testDirectory, projectionsFilename);
+        testDirectoryCleaner = cleanupCallback;
 
-    expect(await readFile(testProjectionsPath)).toEqual(ok("{}\n"));
-  });
+        done();
+      });
+    });
 
-  it("creates a new framework file", async () => {
-    await expectProjectionsNotToExist();
+    // Delete temp directory after every test.
+    afterEach(() => {
+      testDirectoryCleaner();
+    });
 
-    await initializeProjections(testDirectory, "react");
+    it("creates a new empty file", async () => {
+      await expectProjectionsNotToExist();
 
-    await expectProjectionsToExist();
+      await initializeProjections(testDirectory, "");
 
-    expect(assertOk(await readFile(testProjectionsPath))).toContain(
-      ".test.jsx"
-    );
-  });
+      await expectProjectionsToExist();
 
-  it("does not create a new file if there's already one", async () => {
-    expect(await initializeProjections(testDirectory, "")).toHaveProperty("ok");
-    expect(await initializeProjections(testDirectory, "")).toHaveProperty(
-      "error"
-    );
-  });
+      expect(await readFile(testProjectionsPath)).toEqual(ok("{}\n"));
+    });
 
-  it("does not create a new file if its an unknown framework", async () => {
-    expect(
-      await initializeProjections(testDirectory, "something weird")
-    ).toHaveProperty("error");
+    it("creates a new framework file", async () => {
+      await expectProjectionsNotToExist();
 
-    await expectProjectionsNotToExist();
-  });
+      await initializeProjections(testDirectory, "react");
 
-  it("does not create a new file if its an unknown framework", async () => {
-    expect(
-      await initializeProjections(testDirectory, "something weird")
-    ).toHaveProperty("error");
+      await expectProjectionsToExist();
 
-    await expectProjectionsNotToExist();
+      expect(assertOk(await readFile(testProjectionsPath))).toContain(
+        ".test.jsx"
+      );
+    });
+
+    it("does not create a new file if there's already one", async () => {
+      expect(await initializeProjections(testDirectory, "")).toHaveProperty(
+        "ok"
+      );
+      expect(await initializeProjections(testDirectory, "")).toHaveProperty(
+        "error"
+      );
+    });
+
+    it("does not create a new file if its an unknown framework", async () => {
+      expect(
+        await initializeProjections(testDirectory, "something weird")
+      ).toHaveProperty("error");
+
+      await expectProjectionsNotToExist();
+    });
+
+    it("does not create a new file if its an unknown framework", async () => {
+      expect(
+        await initializeProjections(testDirectory, "something weird")
+      ).toHaveProperty("error");
+
+      await expectProjectionsNotToExist();
+    });
   });
 });

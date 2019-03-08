@@ -1,6 +1,7 @@
 import * as path from "path";
 import {
   isOk,
+  mapOk,
   error,
   replaceError,
   ResultP,
@@ -8,8 +9,14 @@ import {
   asyncChainOk
 } from "result-async";
 
-import { fileExists, readFile, makeFile } from "./File";
+import { fileExists, readFile, makeFile, ls } from "./File";
+import { map, titleCase } from "./utils";
 import { projectionsFilename } from "./Projections";
+
+const sampleProjectionsDirectory = path.resolve(
+  __dirname,
+  "../sample-projections"
+);
 
 /**
  * Create a .projections.json file for a given directory, if it doesn't exist already.
@@ -40,11 +47,42 @@ export async function initializeProjections(
   );
 }
 
+/**
+ * Get a list of known frameworks, and their human-readable names.
+ * @returns a list of [name, value] pairs. Send the value to initializeProjections.
+ */
+export async function possibleFrameworks(): ResultP<
+  [string, string][],
+  string
+> {
+  return pipeAsync(
+    sampleProjectionsDirectory,
+    ls,
+    mapOk(map(frameworkFromSampleFilename)),
+    mapOk(frameworkNamesToTitlePair)
+  );
+}
+
 /** Returns the absolute path to a framework file. */
 function sampleFileName(framework: string): string {
   const frameworkNamePart = framework ? `.${framework}` : "";
   return path.resolve(
-    __dirname,
-    `../sample-projections/projections${frameworkNamePart}.json`
+    sampleProjectionsDirectory,
+    `projections${frameworkNamePart}.json`
   );
+}
+
+function frameworkFromSampleFilename(fileName: string): string {
+  const matches = fileName.match(/projections(?:\.(.+))?.json/);
+
+  if (!matches) return "";
+
+  return matches[1] || "";
+}
+
+function frameworkNamesToTitlePair(frameworks: string[]): [string, string][] {
+  return frameworks.sort().map(framework => {
+    const name = framework ? titleCase(framework) : "Empty";
+    return [name, framework] as [string, string];
+  });
 }

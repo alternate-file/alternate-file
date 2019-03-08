@@ -37,3 +37,8 @@ export const zip = <T, U>(array1: T[], array2: U[]): [T, U][] =>
 export const replace = (searchValue: RegExp | string, replaceValue: string) => (
   oldString: string
 ): string => oldString.replace(searchValue, replaceValue);
+
+export const map = <T, U>(f: (x: T) => U) => (xs: T[]): U[] => xs.map(f);
+
+export const titleCase = (s: string): string =>
+  s ? s.charAt(0).toUpperCase() + s.slice(1) : "";

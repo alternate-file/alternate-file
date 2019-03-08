@@ -31,8 +31,7 @@
   "scripts": {
     "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm test",
+    "prepublishOnly": "npm run lint && npm test && npm run build",
     "preversion": "npm run lint && npm run test",
     "test": "jest",
     "lint": "npm run lint-tslint && npm run lint-prettier",
@@ -61,6 +60,6 @@
     "find-up": "^3.0.0",
     "minimist": "^1.2.0",
     "remeda": "0.0.9",
-    "result-async": "^1.0.0"
+    "result-async": "file:../result-async"
   }
 }

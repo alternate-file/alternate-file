@@ -100,6 +100,14 @@ export const fileExists = async (filePath: t): ResultP<t, string> => {
   );
 };
 
+export async function ls(directoryPath: string): ResultP<string[], string> {
+  return pipeAsync(
+    directoryPath,
+    readdir,
+    replaceError(`${directoryPath} not found`)
+  );
+}
+
 /**
  * Wrap a JSON parse in a
  * @returns Ok(body)
@@ -125,5 +133,9 @@ export const fsReadFile = resultify(promisify(fs.readFile));
 const writeFile = resultify(promisify(fs.writeFile));
 const access = resultify(promisify(fs.access));
 const unlink = resultify(promisify(fs.unlink));
+const readdirP = promisify(fs.readdir);
+const readdir: (path: string) => ResultP<string[], any> = resultify(
+  (path: string) => readdirP(path)
+);
 
 const always = <T>(x: T) => (..._args: any[]) => x;
