@@ -60,6 +60,6 @@
     "find-up": "^3.0.0",
     "minimist": "^1.2.0",
     "remeda": "0.0.9",
-    "result-async": "file:../result-async"
+    "result-async": "^1.1.0 ="
   }
 }
