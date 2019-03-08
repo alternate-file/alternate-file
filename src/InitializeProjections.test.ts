@@ -1,6 +1,6 @@
 import * as path from "path";
 import * as tmp from "tmp";
-import { ok, either } from "result-async";
+import { ok, assertOk } from "result-async";
 
 import { initializeProjections } from "./InitializeProjections";
 import { fileExists, readFile } from "./File";
@@ -56,12 +56,8 @@ describe("InitializeProjections", () => {
 
     await expectProjectionsToExist();
 
-    either(
-      await readFile(testProjectionsPath),
-      content => expect(content).toContain(".test.jsx"),
-      err => {
-        throw err;
-      }
+    expect(assertOk(await readFile(testProjectionsPath))).toContain(
+      ".test.jsx"
     );
   });
 
