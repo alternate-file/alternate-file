@@ -26,7 +26,8 @@
   "types": "lib/index.d.ts",
   "files": [
     "lib/**/*",
-    "bin/**/*"
+    "bin/**/*",
+    "sample-projections/**/*"
   ],
   "scripts": {
     "build": "tsc -p ./",
