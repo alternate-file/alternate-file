@@ -40,5 +40,40 @@ export const replace = (searchValue: RegExp | string, replaceValue: string) => (
 
 export const map = <T, U>(f: (x: T) => U) => (xs: T[]): U[] => xs.map(f);
 
+/** Convert an object to a list of tuples. */
+export function toPairs<Value>(dictionary: {
+  [key: string]: Value;
+}): [string, Value][] {
+  return Object.keys(dictionary).map(
+    key => [key, dictionary[key]] as [string, Value]
+  );
+}
+
+/** Shallow flatten a list. */
+export function flatten<T>(xss: T[][]): T[] {
+  return xss.reduce((acc, xs) => acc.concat(xs), []);
+}
+
+export function compact<T>(xs: (T | undefined | null)[]): T[] {
+  return reject(isNil, xs) as T[];
+}
+
+export function filter<T>(f: (x: T) => boolean, xs: T[]): T[] {
+  return xs.reduce((acc: T[], x: T) => {
+    if (!f(x)) return acc;
+
+    acc.push(x);
+    return acc;
+  }, []);
+}
+
+export function reject<T>(f: (x: T) => boolean, xs: T[]): T[] {
+  return filter(x => !f(x), xs);
+}
+
+export function isNil(x: any): boolean {
+  return x === undefined || x === null;
+}
+
 export const titleCase = (s: string): string =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : "";

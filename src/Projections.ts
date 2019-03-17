@@ -1,21 +1,21 @@
-import * as R from "remeda";
 import * as path from "path";
 import * as AlternatePattern from "./AlternatePattern";
 
 import * as File from "./File";
 import {
   pipeAsync,
-  asyncChainOk,
+  okChainAsync,
   ResultP,
   isOk,
-  chainOk,
-  ifError,
+  okChain,
+  errorThen,
   ok,
   error,
   either,
-  ifOk,
-  asyncChainError
+  okThen,
+  errorRescueAsync
 } from "result-async";
+import { map, toPairs, flatten, compact } from "./utils";
 import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
 
 /**
@@ -59,8 +59,8 @@ export const findAlternateFile = async (
   return pipeAsync(
     projectionsPath,
     readProjections,
-    ifOk(projectionsToAlternatePatterns),
-    asyncChainOk(alternatePathIfExists(normalizedUserFilePath, projectionsPath))
+    okThen(projectionsToAlternatePatterns),
+    okChainAsync(alternatePathIfExists(normalizedUserFilePath, projectionsPath))
   );
 };
 
@@ -76,7 +76,7 @@ export const findOrCreateAlternateFile = async (
   return pipeAsync(
     userFilePath,
     findAlternateFile,
-    asyncChainError(async (err: AlternateFileNotFoundError) => {
+    errorRescueAsync(async (err: AlternateFileNotFoundError) => {
       const alternatesAttempted = err.alternatesAttempted || [];
       if (alternatesAttempted.length === 0) {
         return error({
@@ -108,8 +108,8 @@ export const findOrCreateAlternateFile = async (
 export const projectionsToAlternatePatterns = (
   projections: Projections
 ): AlternatePattern.t[] => {
-  const pairs = R.toPairs(projections) as ProjectionPair[];
-  const allPairs = R.flatten(pairs.map(splitOutAlternates));
+  const pairs = toPairs(projections) as ProjectionPair[];
+  const allPairs = flatten(pairs.map(splitOutAlternates));
 
   return allPairs.map(projectionPairToAlternatePattern);
 };
@@ -130,9 +130,9 @@ export const readProjections = async (
   return pipeAsync(
     projectionsPath,
     File.readFile,
-    ifOk((data: string): string => (data === "" ? "{}" : data)),
-    chainOk((x: string) => File.parseJson<Projections>(x, projectionsPath)),
-    ifError((err: string) => ({
+    okThen((data: string): string => (data === "" ? "{}" : data)),
+    okChain((x: string) => File.parseJson<Projections>(x, projectionsPath)),
+    errorThen((err: string) => ({
       startingFile: projectionsPath,
       message: err
     }))
@@ -168,10 +168,10 @@ const alternatePathIfExists = (
 ): ResultP<string, AlternateFileNotFoundError> => {
   return pipeAsync(
     patterns,
-    R.map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
-    paths => R.compact(paths) as string[],
+    map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
+    paths => compact(paths) as string[],
     File.findExisting,
-    ifError((alternatesAttempted: string[]) => ({
+    errorThen((alternatesAttempted: string[]) => ({
       alternatesAttempted,
       message: `No alternate found for ${userFilePath}. Tried: ${alternatesAttempted}`,
       startingFile: userFilePath

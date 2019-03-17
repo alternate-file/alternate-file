@@ -1,12 +1,12 @@
 import * as path from "path";
 import {
   isOk,
-  ifOk,
+  okThen,
   error,
-  replaceError,
+  errorReplace,
   ResultP,
   pipeAsync,
-  asyncChainOk
+  okChainAsync
 } from "result-async";
 
 import { fileExists, readFile, makeFile, ls } from "./File";
@@ -39,11 +39,11 @@ export async function initializeProjections(
     frameworkName,
     sampleFileName,
     fileExists,
-    replaceError(
+    errorReplace(
       `sorry, ${frameworkName} doesn't have a default projections file yet.`
     ),
-    asyncChainOk(readFile),
-    asyncChainOk(contents => makeFile(projectionsPath, contents))
+    okChainAsync(readFile),
+    okChainAsync(contents => makeFile(projectionsPath, contents))
   );
 }
 
@@ -58,8 +58,8 @@ export async function possibleFrameworks(): ResultP<
   return pipeAsync(
     sampleProjectionsDirectory,
     ls,
-    ifOk(map(frameworkFromSampleFilename)),
-    ifOk(frameworkNamesToTitlePair)
+    okThen(map(frameworkFromSampleFilename)),
+    okThen(frameworkNamesToTitlePair)
   );
 }
 
