@@ -23,4 +23,35 @@ describe("utils", () => {
       expect(numberReplacer("123-12-1234")).toEqual("***-**-****");
     });
   });
+
+  describe("toPairs", () => {
+    it("converts a dictionary to pairs", () => {
+      const dictionary = {
+        a: 1,
+        b: 2
+      };
+      expect(utils.toPairs(dictionary)).toEqual([["a", 1], ["b", 2]]);
+    });
+  });
+
+  describe("flatten", () => {
+    it("flattens a deep list once", () => {
+      const list = [[1, 2], [3, [4, 5], 6]];
+      expect(utils.flatten(list)).toEqual([1, 2, 3, [4, 5], 6]);
+    });
+  });
+
+  describe("filter", () => {
+    it("filters stuff", () => {
+      const list = [1, null, 2, undefined];
+      expect(utils.compact(list)).toEqual([1, 2]);
+    });
+  });
+
+  describe("compact", () => {
+    it("removes nils", () => {
+      const list = [1, null, 2, undefined];
+      expect(utils.compact(list)).toEqual([1, 2]);
+    });
+  });
 });

@@ -1,19 +1,20 @@
 import * as fs from "fs";
+import * as path from "path";
 import * as findUp from "find-up";
-import * as R from "remeda";
 import { promisify } from "util";
+import { map } from "./utils";
 
 import {
   error,
+  errorReplace,
+  errorThen,
   firstOk,
-  ifError,
-  ifOk,
   ok,
+  okChainAsync,
+  okReplace,
   pipeAsync,
-  replaceError,
-  replaceOk,
-  resultify,
   Result,
+  resultify,
   ResultP
 } from "result-async";
 
@@ -34,22 +35,42 @@ export const findFileFrom = (fileName: string) => async (
 };
 
 /**
- * Create a new file, with contents.
+ * Create a new file, with contents. Also creates the path if necessary.
  * @param path
  * @param contents
  * @returns filePath
  */
-export const makeFile = async (
-  path: string,
-  contents: string = ""
+export async function makeFile(filePath: string, contents: string = "") {
+  return pipeAsync(
+    filePath,
+    makeDirectoryForFile,
+    okChainAsync(makeFileShallow(contents))
+  );
+}
+
+/**
+ * Create a new file, with contents. Fails if the directory doesn't exist.
+ * @param path
+ * @param contents
+ * @returns filePath
+ */
+export const makeFileShallow = (contents: string) => (
+  filePath: string
 ): ResultP<string, string> => {
   return pipeAsync(
-    path,
-    path => writeFile(path, contents, { flag: "wx" }),
-    ifOk(always(path)),
-    ifError(always(`${path} already exists`))
+    writeFile(filePath, contents, { flag: "wx" }),
+    errorReplace(`${filePath} already exists`),
+    okReplace(filePath)
   );
 };
+
+export async function makeDirectoryDeep(
+  dirPath: string
+): ResultP<string, string> {
+  await mkdir(dirPath, { recursive: true });
+
+  return ok(dirPath);
+}
 
 /**
  * Delete a file by path
@@ -60,8 +81,8 @@ export const deleteFile = (filePath: string): ResultP<string, string> => {
   return pipeAsync(
     filePath,
     unlink,
-    replaceOk(filePath),
-    replaceError(`can't delete ${filePath}`)
+    okReplace(filePath),
+    errorReplace(`can't delete ${filePath}`)
   );
 };
 
@@ -73,10 +94,10 @@ export const deleteFile = (filePath: string): ResultP<string, string> => {
 export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
   return pipeAsync(
     filePaths,
-    R.map(fileExists),
+    map(fileExists),
     files => Promise.all(files),
     file => firstOk(file),
-    ifError(always(filePaths))
+    errorThen(always(filePaths))
   );
 };
 
@@ -93,10 +114,9 @@ export const readFile = (path: string): ResultP<string, any> =>
  */
 export const fileExists = async (filePath: t): ResultP<t, string> => {
   return pipeAsync(
-    filePath,
-    (filePath: string) => access(filePath, fs.constants.R_OK),
-    ifOk(always(filePath)),
-    ifError(always(filePath))
+    access(filePath, fs.constants.R_OK),
+    okReplace(filePath),
+    errorReplace(filePath)
   );
 };
 
@@ -104,7 +124,7 @@ export async function ls(directoryPath: string): ResultP<string[], string> {
   return pipeAsync(
     directoryPath,
     readdir,
-    replaceError(`${directoryPath} not found`)
+    errorReplace(`${directoryPath} not found`)
   );
 }
 
@@ -125,11 +145,26 @@ export const parseJson = <T>(
 };
 
 /**
+ * Recursively create a directory for a file.
+ * @param filePath
+ * @returns The original filePath for piping.
+ */
+async function makeDirectoryForFile(filePath: string): ResultP<string, string> {
+  return pipeAsync(
+    filePath,
+    path.dirname,
+    makeDirectoryDeep,
+    okReplace(filePath)
+  );
+}
+
+/**
  * Read a file's contents
  * @returns a ResultP<file contents, error>
  */
-export const fsReadFile = resultify(promisify(fs.readFile));
+const fsReadFile = resultify(promisify(fs.readFile));
 
+const mkdir = resultify(promisify(fs.mkdir));
 const writeFile = resultify(promisify(fs.writeFile));
 const access = resultify(promisify(fs.access));
 const unlink = resultify(promisify(fs.unlink));
