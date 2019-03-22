@@ -6,8 +6,9 @@ import { isError, ok, error, Result } from "result-async";
  * A computer-friendly representation of paths for switching between alternate files.
  */
 export interface t {
-  main: string;
+  path: string;
   alternate: string;
+  alternateTemplate?: string[];
 }
 
 const slash = "[/\\]";
@@ -34,7 +35,7 @@ const basenamePattern = `(${notSlash}+)`;
  * @param alternatePath - the AlternatePath object to match against.
  */
 export const alternatePath = (path: string, projectionsPath: string) => ({
-  main,
+  path: main,
   alternate
 }: t): string | null =>
   alternatePathForSide(alternate, main, path, projectionsPath) ||
