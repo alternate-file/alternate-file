@@ -77,3 +77,158 @@ export function isNil(x: any): boolean {
 
 export const titleCase = (s: string): string =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+
+type Unary<In, Out> = (x: In) => Out;
+
+/**
+ * Pipe the first argument through a series of transforming functions,
+ * where each function takes the return from the previous one.
+ *
+ * Similar to Ramda's `pipe`, but is not curried.
+ * @param start - The value to start with.
+ * @param fs - The functions to pipe the value through.
+ * @returns the return value of the final function.
+ */
+export function pipe<In, Out1, OutLast>(
+  start: In,
+  f2: Unary<In, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, Out2, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, Out2, Out3, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, Out2, Out3, Out4, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, Out2, Out3, Out4, Out5, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, Out5>,
+  f6: Unary<Out5, OutLast>
+): OutLast;
+
+export function pipe<In, Out1, Out2, Out3, Out4, Out5, Out6, OutLast>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, Out5>,
+  f6: Unary<Out5, Out6>,
+  f7: Unary<Out6, OutLast>
+): OutLast;
+
+export function pipe<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  OutLast
+>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, Out5>,
+  f6: Unary<Out5, Out6>,
+  f7: Unary<Out6, Out7>,
+  f8: Unary<Out7, Out8>,
+  f9: Unary<Out8, OutLast>
+): OutLast;
+
+export function pipe<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  Out9,
+  OutLast
+>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, Out5>,
+  f6: Unary<Out5, Out6>,
+  f7: Unary<Out6, Out7>,
+  f8: Unary<Out7, Out8>,
+  f9: Unary<Out8, Out9>,
+  f10: Unary<Out9, OutLast>
+): OutLast;
+
+export function pipe<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  Out9,
+  Out10,
+  OutLast
+>(
+  start: In,
+  f1: Unary<In, Out1>,
+  f2: Unary<Out1, Out2>,
+  f3: Unary<Out2, Out3>,
+  f4: Unary<Out3, Out4>,
+  f5: Unary<Out4, Out5>,
+  f6: Unary<Out5, Out6>,
+  f7: Unary<Out6, Out7>,
+  f8: Unary<Out7, Out8>,
+  f9: Unary<Out8, Out9>,
+  f10: Unary<Out9, Out10>,
+  f11: Unary<Out10, OutLast>
+): OutLast;
+
+export async function pipe(start: any, ...fs: any) {
+  let acc: any = start;
+
+  for (const i in fs) {
+    acc = fs[i](acc);
+  }
+
+  return acc;
+}

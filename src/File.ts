@@ -22,11 +22,11 @@ export type t = string;
 
 /**
  * Find a file by recursively walking up the directory chain.
- * @param fileName - The filename to look for.
+ * @param fileName - The filename to look for. May be multiple filenames.
  * @param fromFilePath - The file to start looking from
  * @return the full path/"not found"
  */
-export const findFileFrom = (fileName: string) => async (
+export const findFileFrom = (fileName: string | string[]) => async (
   fromFilePath: string
 ): ResultP<string, string> => {
   const filePath = await findUp(fileName, { cwd: fromFilePath });

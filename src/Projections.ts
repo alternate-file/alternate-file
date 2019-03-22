@@ -193,7 +193,7 @@ const projectionPairToAlternatePattern = ([
   main,
   { alternate }
 ]: SingleProjectionPair): AlternatePattern.t => ({
-  main: mainPathToAlternate(main),
+  path: mainPathToAlternate(main),
   alternate: alternatePathToAlternate(alternate)
 });
 
