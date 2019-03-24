@@ -8,7 +8,6 @@ import { isError, ok, error, Result } from "result-async";
 export interface t {
   path: string;
   alternate: string;
-  alternateTemplate?: string[];
 }
 
 const slash = "[/\\]";

@@ -9,7 +9,8 @@
       "ban-keywords",
       "check-format",
       "allow-leading-underscore"
-    ]
+    ],
+    "no-increment-decrement": false
   },
   "rulesDirectory": [],
   "linterOptions": {
