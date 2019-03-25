@@ -10,4 +10,4 @@ export {
 export {
   initializeProjections,
   possibleFrameworks
-} from "./InitializeProjections";
+} from "./projections/InitializeProjections";

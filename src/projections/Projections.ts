@@ -1,7 +1,7 @@
 import * as path from "path";
-import * as AlternatePattern from "./AlternatePattern";
+import * as AlternatePattern from "../AlternatePattern";
 
-import * as File from "./File";
+import * as File from "../File";
 import {
   pipeAsync,
   okChainAsync,
@@ -15,8 +15,8 @@ import {
   okThen,
   errorRescueAsync
 } from "result-async";
-import { map, toPairs, flatten, compact } from "./utils";
-import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
+import { map, toPairs, flatten, compact } from "../utils";
+import { AlternateFileNotFoundError } from "../AlternateFileNotFoundError";
 
 /**
  * the data type for a .projections.json file.
