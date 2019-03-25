@@ -10,7 +10,8 @@
       "check-format",
       "allow-leading-underscore"
     ],
-    "no-increment-decrement": false
+    "no-increment-decrement": false,
+    "no-parameter-reassignment": false
   },
   "rulesDirectory": [],
   "linterOptions": {

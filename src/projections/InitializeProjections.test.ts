@@ -6,7 +6,7 @@ import {
   initializeProjections,
   possibleFrameworks
 } from "./InitializeProjections";
-import { fileExists, readFile } from "./File";
+import { fileExists, readFile } from "../File";
 import { projectionsFilename } from "./Projections";
 
 describe("InitializeProjections", () => {

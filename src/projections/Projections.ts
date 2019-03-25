@@ -1,7 +1,7 @@
 import * as path from "path";
-import * as AlternatePattern from "./AlternatePattern";
+import * as AlternatePattern from "../AlternatePattern";
 
-import * as File from "./File";
+import * as File from "../File";
 import {
   okChainAsync,
   ResultP,

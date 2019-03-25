@@ -1,4 +1,4 @@
-import { patternToTransformers } from "./AlternatePath";
+import { patternToTransformers } from "./patterns/AlternatePath";
 
 describe("AlternatePath", () => {
   describe("findAlternatePath", () => {
