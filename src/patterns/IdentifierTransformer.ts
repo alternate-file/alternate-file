@@ -1,4 +1,4 @@
-import { ok, error, Result } from "result-async";
+import { ok, Result } from "result-async";
 
 export type IdentifierTransformer = (value: string) => string;
 
