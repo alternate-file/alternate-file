@@ -1,16 +1,12 @@
-import { pipe, zip, map } from "../utils";
-import {
-  ok,
-  error,
-  okChain,
-  Result,
-  isError,
-  allOk,
-  okThen
-} from "result-async";
-import { reduceUnless } from "../result-utils";
 import * as FileIdentifiers from "./FileIdentifiers";
-import { oneIdentifierSymbolRegex } from "./IdentifierSymbol";
+import * as OperationGroup from "./OperationGroup";
+
+import { pipe } from "../utils";
+import { Result, isError, okThen } from "result-async";
+import {
+  oneIdentifierSymbolRegex,
+  allIdentifierSymbolsRegex
+} from "./IdentifierSymbol";
 
 export { AlternatePath as T };
 
@@ -32,8 +28,9 @@ export function findAlternatePath(
   return pipe(
     mainPattern,
     sanitizePattern,
-    pattern => FileIdentifiers.extractIdentifiers(mainPath, pattern),
-    okChain(addCapturesToTemplate(alternatePattern))
+    (pattern: string) =>
+      FileIdentifiers.extractIdentifiers(mainPath, pattern, rootPath),
+    okThen(addCapturesToTemplate(alternatePattern))
   );
 }
 
@@ -42,18 +39,27 @@ export function sanitizePattern(path: string): string {
 }
 
 function addCapturesToTemplate(template: string) {
-  return function(fileIdentifiers: FileIdentifiers.T): Result<string, string> {
-    // TODO: while there are matches:
-    template.replace(oneIdentifierSymbolRegex, (symbol: string) => {
-      // TODO: replace one match, using identifiers
-    });
+  return function(fileIdentifiers: FileIdentifiers.T): string {
+    const symbols = template.match(allIdentifierSymbolsRegex) || [];
+
+    return symbols.reduce((template: string): string => {
+      return template.replace(
+        oneIdentifierSymbolRegex,
+        transformIdentifier(fileIdentifiers)
+      );
+    }, template);
   };
 }
-// function fillWithCaptures(template: string) {
-//   return function(captures: string[]): string {
-//     captures.reduce((finalString, capture) => finalString.replace())
-//   };
-// }
-// function joinTemplate(filledTemplate: string[]): string {
-//   return filledTemplate.join("\n");
-// }
+
+function transformIdentifier(fileIdentifiers: FileIdentifiers.T) {
+  return function(symbol: string): string {
+    const operations = OperationGroup.parseSymbol(symbol);
+
+    const result = OperationGroup.transformIdentifier(
+      operations,
+      fileIdentifiers
+    );
+
+    return isError(result) ? symbol : result.ok;
+  };
+}

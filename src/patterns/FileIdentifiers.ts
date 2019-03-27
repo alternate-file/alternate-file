@@ -10,19 +10,22 @@ import {
   errorReplace
 } from "result-async";
 import { reduceUnless } from "../result-utils";
-import { allIdentifierSymbolsRegex } from "./IdentifierSymbol";
+import { allIdentifierSymbolsRegex, splitSymbol } from "./IdentifierSymbol";
 
 import * as IdentifierValidator from "./IdentifierValidator";
 
 export { FileIdentifiers as T };
 
+export type IdentifierType = "directories" | "filename";
+
 interface FileIdentifiers {
   directories: string[];
   filename: string;
+  rootPath: string;
 }
 
 interface FileIdentifier {
-  type: "directories" | "filename";
+  type: IdentifierType;
   value: string;
 }
 
@@ -33,7 +36,8 @@ interface FileIdentifier {
  */
 export function extractIdentifiers(
   filePath: string,
-  pattern: string
+  pattern: string,
+  rootPath: string
 ): Result<FileIdentifiers, string> {
   const operatorPipelines = patternToOperators(pattern);
   if (isError(operatorPipelines)) return operatorPipelines;
@@ -42,7 +46,7 @@ export function extractIdentifiers(
     pattern,
     patternToMatcherRegex,
     capturesFromPath(filePath),
-    okChain(capturesToIdentifiers(operatorPipelines.ok))
+    okChain(capturesToIdentifiers(operatorPipelines.ok, rootPath))
   );
 }
 
@@ -50,12 +54,7 @@ function patternToOperators(pattern: string): Result<string[][], string> {
   const matches = pattern.match(allIdentifierSymbolsRegex);
   if (!matches) return error("invalid pattern");
 
-  const operatorPipelines = matches.map(match =>
-    match
-      .replace("{", "")
-      .replace("}", "")
-      .split("|")
-  );
+  const operatorPipelines = matches.map(splitSymbol);
 
   return ok(operatorPipelines);
 }
@@ -71,7 +70,10 @@ function capturesFromPath(path: string) {
   };
 }
 
-function capturesToIdentifiers(operatorPipelines: string[][]) {
+function capturesToIdentifiers(
+  operatorPipelines: string[][],
+  rootPath: string
+) {
   return function(captures: string[]): Result<FileIdentifiers, string> {
     return pipe(
       zip(captures, operatorPipelines),
@@ -79,7 +81,7 @@ function capturesToIdentifiers(operatorPipelines: string[][]) {
         captureToIdentifier(capture, operatorPipeline)
       ),
       allOk,
-      okThen(combineIdentifiers)
+      okThen(combineIdentifiers(rootPath))
     );
   };
 }
@@ -90,7 +92,7 @@ function captureToIdentifier(
 ): Result<FileIdentifier, string> {
   const [captureType, ...actualOperators] = operatorPipeline;
 
-  const type: "filename" | "directories" =
+  const type: IdentifierType =
     captureType === "basename" ? "filename" : "directories";
 
   const finalValue = reduceUnless(
@@ -107,21 +109,22 @@ function captureToIdentifier(
   return okThen((value: string) => ({ type, value }))(finalValue);
 }
 
-function combineIdentifiers(
-  fileIdentifierList: FileIdentifier[]
-): FileIdentifiers {
-  return fileIdentifierList.reduce(
-    (pathParts: FileIdentifiers, pathPart: FileIdentifier) => {
-      return pathPart.type === "filename"
-        ? { ...pathParts, filename: pathPart.value }
-        : {
-            ...pathParts,
-            directories: [...pathParts.directories, pathPart.value]
-          };
-    },
-    {
-      directories: [],
-      filename: ""
-    }
-  );
+function combineIdentifiers(rootPath: string) {
+  return function(fileIdentifierList: FileIdentifier[]): FileIdentifiers {
+    return fileIdentifierList.reduce(
+      (pathParts: FileIdentifiers, pathPart: FileIdentifier) => {
+        return pathPart.type === "filename"
+          ? { ...pathParts, filename: pathPart.value }
+          : {
+              ...pathParts,
+              directories: [...pathParts.directories, pathPart.value]
+            };
+      },
+      {
+        rootPath,
+        directories: [],
+        filename: ""
+      }
+    );
+  };
 }

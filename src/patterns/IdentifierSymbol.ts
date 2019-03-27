@@ -14,3 +14,10 @@ function makeRegex(names: string[], flags?: string): RegExp {
 
   return new RegExp(`(dirname|basename|{${optionsGroup}+})`, flags);
 }
+
+export function splitSymbol(symbol: string): string[] {
+  return symbol
+    .replace("{", "")
+    .replace("}", "")
+    .split("|");
+}
