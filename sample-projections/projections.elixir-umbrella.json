@@ -1,5 +1,5 @@
 {
   "apps/**/lib/**/*.ex": {
-    "alternate": "apps/{dirname}/test/{dirname}/{basename}_test.exs"
+    "alternate": "apps/{directories}/test/{directories}/{filename}_test.exs"
   }
 }

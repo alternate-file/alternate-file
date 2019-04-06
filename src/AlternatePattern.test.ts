@@ -23,7 +23,7 @@ describe("AlternatePattern", () => {
       ]
     },
     multiSplitTemplate: {
-      path: "apps/**/lib/**/{basename}.ex",
+      path: "apps/**/lib/**/{filename}.ex",
       alternate: "apps/**/test/**/*_test.exs",
       alternateTemplate: ["alias {**|2|dedupe|dot|capitalize}"]
     }
@@ -78,7 +78,7 @@ describe("AlternatePattern", () => {
         ).toBe(null);
       });
 
-      it("finds a match with multiple dirnames", () => {
+      it("finds a match with multiple directoriess", () => {
         const path = AlternatePattern.alternatePath(
           "/project/apps/my_app/lib/accounts/user.ex",
           projectionsPath

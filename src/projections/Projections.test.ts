@@ -9,25 +9,25 @@ describe("Projection", () => {
 
     expect(Projection.projectionsToAlternatePatterns(projections)).toEqual([
       {
-        main: "src/{dirname}/{basename}.ts",
-        alternate: "src/test/{dirname}/{basename}.test.ts"
+        main: "src/{directories}/{filename}.ts",
+        alternate: "src/test/{directories}/{filename}.test.ts"
       },
       {
-        main: "app/{dirname}/{basename}.rb",
-        alternate: "test/{dirname}/{basename}_spec.rb"
+        main: "app/{directories}/{filename}.rb",
+        alternate: "test/{directories}/{filename}_spec.rb"
       }
     ]);
   });
 
   it("projectionsToAlternatePatterns parses ** and *", () => {
     const projections: Projection.Projections = {
-      "src/**/*.ts": { alternate: "src/{dirname}/__test__/{basename}.test.ts" }
+      "src/**/*.ts": { alternate: "src/{directories}/__test__/{filename}.test.ts" }
     };
 
     expect(Projection.projectionsToAlternatePatterns(projections)).toEqual([
       {
-        main: "src/{dirname}/{basename}.ts",
-        alternate: "src/{dirname}/__test__/{basename}.test.ts"
+        main: "src/{directories}/{filename}.ts",
+        alternate: "src/{directories}/__test__/{filename}.test.ts"
       }
     ]);
   });
@@ -37,19 +37,19 @@ describe("Projection", () => {
       "src/*.ts": {
         alternate: [
           "src/test/{}.test.ts",
-          "src/{dirname}/__test__/{basename}.test.ts"
+          "src/{directories}/__test__/{filename}.test.ts"
         ]
       }
     };
 
     expect(Projection.projectionsToAlternatePatterns(projections)).toEqual([
       {
-        main: "src/{dirname}/{basename}.ts",
-        alternate: "src/test/{dirname}/{basename}.test.ts"
+        main: "src/{directories}/{filename}.ts",
+        alternate: "src/test/{directories}/{filename}.test.ts"
       },
       {
-        main: "src/{dirname}/{basename}.ts",
-        alternate: "src/{dirname}/__test__/{basename}.test.ts"
+        main: "src/{directories}/{filename}.ts",
+        alternate: "src/{directories}/__test__/{filename}.test.ts"
       }
     ]);
   });

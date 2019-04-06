@@ -33,7 +33,7 @@ type SingleProjectionPair = [string, { alternate: string }];
 
 export const projectionsFilename = ".projections.json";
 const starRegex = /\*/;
-const basenameRegex = /\{\}|\{basename\}/;
+const filenameRegex = /\{\}|\{filename\}/;
 
 /**
  * Find the path of the alternate file (if the alternate file actually exists)
@@ -203,15 +203,15 @@ const mainPathToAlternate = (path: string): string => {
 
   const taggedPath = /\*\*/.test(path) ? path : path.replace("*", "**/*");
 
-  return taggedPath.replace(/\*\*/g, "{dirname}").replace("*", "{basename}");
+  return taggedPath.replace(/\*\*/g, "{directories}").replace("*", "{filename}");
 };
 
 const alternatePathToAlternate = (path: string): string => {
-  if (!basenameRegex.test(path)) {
+  if (!filenameRegex.test(path)) {
     throw new Error(`${path} is an invalid alternate projection path`);
   }
 
-  return path.replace(/\{\}/g, "{dirname}/{basename}");
+  return path.replace(/\{\}/g, "{directories}/{filename}");
 };
 
 const always = <T>(x: T) => (): T => x;

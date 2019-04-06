@@ -19,11 +19,11 @@ const escapedBackslash = "\\\\";
 
 const transformationPattern = "{([^{}]+)}";
 
-const dirnameRegex = new RegExp(`{dirname}${escapedSlash}`, "g");
-const basenameRegex = /{basename}/g;
+const directoriesRegex = new RegExp(`{directories}${escapedSlash}`, "g");
+const filenameRegex = /{filename}/g;
 
-const dirnamePattern = `(?:(.+)${slash})?`;
-const basenamePattern = `(${notSlash}+)`;
+const directoriesPattern = `(?:(.+)${slash})?`;
+const filenamePattern = `(${notSlash}+)`;
 
 /**
  * Given a filePath and an AlternatePath, calculate if the filePath matches
@@ -127,8 +127,8 @@ const matchPatternToPath = (
  */
 const patternToRegex = (pathPattern: string): RegExp => {
   const regexPattern = pathPattern
-    .replace(dirnameRegex, dirnamePattern)
-    .replace(basenameRegex, basenamePattern);
+    .replace(directoriesRegex, directoriesPattern)
+    .replace(filenameRegex, filenamePattern);
 
   const escapedPattern = escapeBackslashes(regexPattern);
 
@@ -141,7 +141,7 @@ const patternToRegex = (pathPattern: string): RegExp => {
  * @param filePattern -
  */
 const combinePaths = (projectionsPath: string, filePattern: string): string => {
-  const projectionsDir = path.dirname(projectionsPath);
+  const projectionsDir = path.directories(projectionsPath);
   return path.resolve(projectionsDir, filePattern);
 };
 

@@ -33,12 +33,15 @@ export function findAlternatePath(
     sanitizePattern,
     (pattern: string) =>
       FileIdentifiers.extractIdentifiers(mainPath, pattern, rootPath),
-    okThen(addCapturesToTemplate(alternatePattern))
+    okThen(addCapturesToTemplate(sanitizePattern(alternatePattern)))
   );
 }
 
 export function sanitizePattern(path: string): string {
-  return path.replace(/\*\*/g, "dirname").replace(/\*/g, "pathname");
+  return path
+    .replace(/\*\*/g, "directories")
+    .replace(/\*/g, "filename")
+    .replace(/([^{])(directories|filename)/g, "$1{$2}");
 }
 
 function addCapturesToTemplate(template: string) {

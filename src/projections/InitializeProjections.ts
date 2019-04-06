@@ -14,7 +14,7 @@ import { map, titleCase } from "../utils/utils";
 import { projectionsFilename } from "./Projections";
 
 const sampleProjectionsDirectory = path.resolve(
-  __dirname,
+  __directories,
   "../sample-projections"
 );
 
