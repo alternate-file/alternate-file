@@ -1,7 +1,10 @@
-import { pipe } from "./utils";
+import { pipe } from "../utils/utils";
 
 export { AlternateTemplate as T };
 
+/**
+ * Data for filling out a template from a path
+ */
 interface AlternateTemplate {
   path: string;
   pattern: string;
@@ -29,6 +32,7 @@ export function fillTemplate(alternateTemplate: AlternateTemplate): string {
   );
 }
 
+// TODO
 function patternToTransformers(pattern: string): string[][] {}
 function patternToRegex(pattern: string): RegExp {}
 function capturesFromPath(path: string) {

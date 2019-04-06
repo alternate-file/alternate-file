@@ -1,5 +1,5 @@
 import * as path from "path";
-import * as utils from "./utils";
+import * as utils from "./utils/utils";
 import { isError, ok, error, Result } from "result-async";
 
 /**

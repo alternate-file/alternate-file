@@ -1,7 +1,4 @@
 import * as path from "path";
-import * as AlternatePattern from "../AlternatePattern";
-
-import * as File from "../File";
 import {
   okChainAsync,
   ResultP,
@@ -16,6 +13,8 @@ import {
 } from "result-async";
 import { pipeA } from "pipeout";
 import { map, toPairs, flatten, compact } from "./utils";
+import * as AlternatePattern from "../AlternatePattern";
+import * as File from "../utils/File";
 import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
 
 /**

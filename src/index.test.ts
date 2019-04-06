@@ -3,7 +3,7 @@ import * as tmp from "tmp";
 import { okChainAsync } from "result-async";
 import { pipeA } from "pipeout";
 
-import { fileExists, makeFile } from "./File";
+import { fileExists, makeFile } from "./utils/File";
 
 import { findOrCreateAlternateFile, initializeProjections } from "./index";
 
