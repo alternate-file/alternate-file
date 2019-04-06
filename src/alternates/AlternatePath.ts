@@ -1,15 +1,18 @@
-import * as FileIdentifiers from "./FileIdentifiers";
-import * as OperationGroup from "./OperationGroup";
+import * as FileIdentifiers from "../identifiers/FileIdentifiers";
+import * as OperationGroup from "../identifiers/OperationGroup";
 
-import { pipe } from "../utils";
+import { pipe } from "../utils/utils";
 import { Result, isError, okThen } from "result-async";
 import {
   oneIdentifierSymbolRegex,
   allIdentifierSymbolsRegex
-} from "./IdentifierSymbol";
+} from "../identifiers";
 
 export { AlternatePath as T };
 
+/**
+ * Data for filling out a path from a path
+ */
 interface AlternatePath {
   mainPattern: string;
   alternatePattern: string;

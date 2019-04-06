@@ -1,4 +1,4 @@
-import { pipe, zip, map } from "../utils";
+import { pipe, zip, map } from "../utils/utils";
 import {
   ok,
   error,
@@ -6,13 +6,13 @@ import {
   isError,
   allOk,
   okThen,
-  okChain,
-  errorReplace
+  okChain
 } from "result-async";
-import { reduceUnless } from "../result-utils";
-import { allIdentifierSymbolsRegex, splitSymbol } from "./IdentifierSymbol";
-
-import * as IdentifierValidator from "./IdentifierValidator";
+import {
+  allIdentifierSymbolsRegex,
+  splitSymbol,
+  validateCapture
+} from ".";
 
 export { FileIdentifiers as T };
 
@@ -95,16 +95,7 @@ function captureToIdentifier(
   const type: IdentifierType =
     captureType === "basename" ? "filename" : "directories";
 
-  const finalValue = reduceUnless(
-    // TODO: Reverse transformers?
-    IdentifierValidator.filterValidators(actualOperators),
-    (capture: string, operator) => {
-      return errorReplace("pattern doesn't match")(
-        IdentifierValidator.run(capture, operator)
-      );
-    },
-    capture
-  );
+  const finalValue = validateCapture(actualOperators, capture);
 
   return okThen((value: string) => ({ type, value }))(finalValue);
 }

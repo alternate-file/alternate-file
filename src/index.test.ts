@@ -2,7 +2,7 @@ import * as path from "path";
 import * as tmp from "tmp";
 import { pipeAsync, okChainAsync } from "result-async";
 
-import { fileExists, makeFile } from "./File";
+import { fileExists, makeFile } from "./utils/File";
 
 import { findOrCreateAlternateFile, initializeProjections } from "./index";
 

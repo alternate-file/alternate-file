@@ -1,6 +1,7 @@
-import * as FileIdentifiers from "./FileIdentifiers";
-import * as IdentifierOperator from "./IdentifierOperator";
 import { Result } from "result-async";
+
+import * as FileIdentifiers from "./FileIdentifiers";
+import { runAllOperators } from ".";
 
 export { OperationGroup as T };
 
@@ -32,8 +33,5 @@ export function transformIdentifier(
       ? fileIdentifiers.directories[0]
       : fileIdentifiers.filename;
 
-  return IdentifierOperator.runAll(
-    startingIdentifier,
-    operationGroup.operations
-  );
+  return runAllOperators(startingIdentifier, operationGroup.operations);
 }

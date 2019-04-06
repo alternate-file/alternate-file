@@ -9,8 +9,8 @@ import {
   okChainAsync
 } from "result-async";
 
-import { fileExists, readFile, makeFile, ls } from "../File";
-import { map, titleCase } from "../utils";
+import { fileExists, readFile, makeFile, ls } from "../utils/File";
+import { map, titleCase } from "../utils/utils";
 import { projectionsFilename } from "./Projections";
 
 const sampleProjectionsDirectory = path.resolve(

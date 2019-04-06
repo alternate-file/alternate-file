@@ -1,7 +1,4 @@
 import * as path from "path";
-import * as AlternatePattern from "../AlternatePattern";
-
-import * as File from "../File";
 import {
   pipeAsync,
   okChainAsync,
@@ -15,8 +12,12 @@ import {
   okThen,
   errorRescueAsync
 } from "result-async";
-import { map, toPairs, flatten, compact } from "../utils";
-import { AlternateFileNotFoundError } from "../AlternateFileNotFoundError";
+
+import * as AlternatePattern from "../AlternatePattern";
+import * as File from "../utils/File";
+import { map, toPairs, flatten, compact } from "../utils/utils";
+
+import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
 
 /**
  * the data type for a .projections.json file.
@@ -169,7 +170,7 @@ const alternatePathIfExists = (
   return pipeAsync(
     patterns,
     map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
-    paths => compact(paths) as string[],
+    (paths: string[]) => compact(paths) as string[],
     File.findExisting,
     errorThen((alternatesAttempted: string[]) => ({
       alternatesAttempted,

@@ -2,8 +2,8 @@ import { okChain, Result } from "result-async";
 
 import * as IdentifierTransformer from "./IdentifierTransformer";
 import * as IdentifierValidator from "./IdentifierValidator";
-import { pipe } from "../utils";
-import { reduceUnless } from "../result-utils";
+import { pipe } from "../utils/utils";
+import { reduceUnless } from "../utils/result-utils";
 reduceUnless;
 
 export const names = IdentifierValidator.validatorNames.concat(
