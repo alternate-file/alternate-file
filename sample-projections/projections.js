@@ -1,14 +1,14 @@
 module.exports = {
   "*.js": {
-    alternate: ["{dirname}/__test__/{basename}.test.js", "{}.test.js"],
+    alternate: ["{directories}/__test__/{filename}.test.js", "{}.test.js"],
     template: `
     foo
     `
   },
   "*.jsx": {
     alternate: [
-      "{dirname}/__test__/{basename}.test.jsx",
-      "{dirname}/__test__/{basename}.test.js",
+      "{directories}/__test__/{filename}.test.jsx",
+      "{directories}/__test__/{filename}.test.js",
       "{}.test.jsx",
       "{}.test.js"
     ]

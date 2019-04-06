@@ -17,13 +17,13 @@ Each line should have the pattern for an implementation file as the key, and an 
 
 ### Split paths
 
-If your test paths have an extra directly in the middle of them, like with `app/some/path/__test__/file.test.js` with Jest, you can use `{dirname}` for the directory path and `{basename}` for the filename. You can do the same thing on the implementation side with the standard glob syntax: `**` to represent the directory path, and `*` to represent the filename, like `app/**/something/*.js`.
+If your test paths have an extra directly in the middle of them, like with `app/some/path/__test__/file.test.js` with Jest, you can use `{directories}` for the directory path and `{filename}` for the filename. You can do the same thing on the implementation side with the standard glob syntax: `**` to represent the directory path, and `*` to represent the filename, like `app/**/something/*.js`.
 
-If your paths have more than two variable parts, that can work too! You can use multiple sets of `**`/`{dirname}` pairs, which allows you to do something like:
+If your paths have more than two variable parts, that can work too! You can use multiple sets of `**`/`{directories}` pairs, which allows you to do something like:
 
 ```json
 "apps/**/lib/**/*.ex": {
-  "alternate": "apps/{dirname}/test/{dirname}/{basename}_test.exs"
+  "alternate": "apps/{directories}/test/{directories}/{filename}_test.exs"
 }
 ```
 
@@ -40,9 +40,9 @@ Note that this isn't part of the original `projectionist` spec, but it's sometim
   // Basic
   // app/foo/bar/file.js => app/foo/bar/file.spec.js
   "app/*.js": { "alternate": "app/{}.spec.js" },
-  // Dirname/Basename
+  // directories/filename
   // app/foo/bar/file.js => app/foo/bar/__test__/file.test.js
-  "*.js": { "alternate": "{dirname}/__test__/{basename}.test.js" },
+  "*.js": { "alternate": "{directories}/__test__/{filename}.test.js" },
   // Globbed implementation:
   // app/foo/bar/js/file.js => test/foo/bar/file_test.js
   "app/**/js/*.js": { "alternate": "test/{}/_test.js" },
@@ -76,5 +76,5 @@ yarn test
 
 - Support templates for auto-populating new files.
 - Automatically create default .projection.json files
-- Support all the transformations from Projectionist, not just `dirname` and `basename`.
+- Support all the transformations from Projectionist, not just `directories` and `filename`.
 - Support the "type" attribute in `.projections.json`, and allow for lookup by filetype, like for "`controller`/`view`/`template`".

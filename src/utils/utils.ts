@@ -223,7 +223,7 @@ export function pipe<
   f11: Unary<Out10, OutLast>
 ): OutLast;
 
-export async function pipe(start: any, ...fs: any) {
+export function pipe(start: any, ...fs: any) {
   let acc: any = start;
 
   for (const i in fs) {

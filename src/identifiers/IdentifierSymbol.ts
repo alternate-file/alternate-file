@@ -8,11 +8,11 @@ export const allIdentifierSymbolsRegex = makeRegex(
 export const oneIdentifierSymbolRegex = makeRegex(IdentifierOperator.names);
 
 function makeRegex(names: string[], flags?: string): RegExp {
-  const optionsList = names.concat(["dirname", "basename"]);
+  const optionsList = names.concat(["directories", "filename"]);
   const option = `(?:${optionsList.join("|")})`;
   const optionsGroup = `(?:${option}\\|?)`;
 
-  return new RegExp(`(dirname|basename|{${optionsGroup}+})`, flags);
+  return new RegExp(`({${optionsGroup}+})`, flags);
 }
 
 export function splitSymbol(symbol: string): string[] {

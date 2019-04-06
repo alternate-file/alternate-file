@@ -152,7 +152,7 @@ export const parseJson = <T>(
 async function makeDirectoryForFile(filePath: string): ResultP<string, string> {
   return pipeAsync(
     filePath,
-    path.dirname,
+    path.directories,
     makeDirectoryDeep,
     okReplace(filePath)
   );

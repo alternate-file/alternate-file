@@ -8,11 +8,7 @@ import {
   okThen,
   okChain
 } from "result-async";
-import {
-  allIdentifierSymbolsRegex,
-  splitSymbol,
-  validateCapture
-} from ".";
+import { allIdentifierSymbolsRegex, splitSymbol, validateCapture } from ".";
 
 export { FileIdentifiers as T };
 
@@ -66,7 +62,11 @@ function patternToMatcherRegex(pattern: string): RegExp {
 function capturesFromPath(path: string) {
   return function(regex: RegExp): Result<string[], string> {
     const matches = path.match(regex);
-    return matches ? ok(matches) : error("pattern doesn't match");
+
+    if (!matches) return error("pattern doesn't match");
+
+    const [, ...captures] = matches;
+    return ok(captures);
   };
 }
 
@@ -93,7 +93,7 @@ function captureToIdentifier(
   const [captureType, ...actualOperators] = operatorPipeline;
 
   const type: IdentifierType =
-    captureType === "basename" ? "filename" : "directories";
+    captureType === "filename" ? "filename" : "directories";
 
   const finalValue = validateCapture(actualOperators, capture);
 
