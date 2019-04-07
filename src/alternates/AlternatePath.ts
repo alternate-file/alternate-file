@@ -1,13 +1,9 @@
 import * as FileIdentifiers from "../identifiers/FileIdentifiers";
-import * as OperationGroup from "../operations/OperationGroup";
+import * as Operations from "../operations";
 
 import { pipe } from "../utils/utils";
 import { Result, isError, okThen } from "result-async";
-import {
-  oneIdentifierSymbolRegex,
-  allIdentifierSymbolsRegex
-} from "../operations";
-
+import { addSymbolsToPattern } from "../operations/OperationSymbol";
 export { AlternatePath as T };
 
 /**
@@ -20,55 +16,50 @@ interface AlternatePath {
 
 /**
  * Fill a template given a pattern and a path
- * @param alternateTemplate
+ * @param mainPath The absolute path to the main file
+ * @param mainPattern A pattern that could describe the main path.
+ * @param alternateTemplate A pattern to be filled out with identifiers from the mainPath
+ * @param alternatePath The absolute path to the alternate file. Used for building file templates, and not for finding alternate paths.
+ * @returns An error with a message if the mainPattern doesn't match. An ok with the filled template if it does match.
  */
 export function findAlternatePath(
-  rootPath: string,
   mainPath: string,
   mainPattern: string,
-  alternatePattern: string
+  alternateTemplate: string,
+  alternatePath?: string
 ): Result<string, string> {
+  const mainPatternWithSymbols = addSymbolsToPattern(mainPattern);
+  const alternatePatternWithSymbols = addSymbolsToPattern(alternateTemplate);
+
   return pipe(
-    mainPattern,
-    sanitizePattern,
-    (pattern: string) =>
-      FileIdentifiers.getIdentifiersFromPath(mainPath, pattern, rootPath),
-    okThen(addCapturesToTemplate(sanitizePattern(alternatePattern)))
+    FileIdentifiers.getIdentifiersFromPath(mainPath, mainPatternWithSymbols),
+    okThen(addCapturesToTemplate(alternatePatternWithSymbols, alternatePath))
   );
 }
 
-export function sanitizePattern(path: string): string {
-  return path
-    .replace(/\*\*/g, "directories")
-    .replace(/\*/g, "filename")
-    .replace(/([^{])(directories|filename)/g, "$1{$2}");
-}
-
-// TODO This seems wrong.
-// Also paths and templates are the same - you 
-// create FileIdentifiers for the mainPath,
-// and call parseSymbol |> getIdentifierForAlternate
-// to replace every symbol in the template/altPath
-function addCapturesToTemplate(template: string) {
+function addCapturesToTemplate(
+  template: string,
+  alternatePath: string | undefined
+) {
   return function(fileIdentifiers: FileIdentifiers.T): string {
-    const symbols = template.match(allIdentifierSymbolsRegex) || [];
-
-    return symbols.reduce((template: string): string => {
-      return template.replace(
-        oneIdentifierSymbolRegex,
-        transformIdentifier(fileIdentifiers)
-      );
-    }, template);
+    return template.replace(
+      Operations.allIdentifierSymbolsRegex,
+      transformIdentifier(fileIdentifiers, alternatePath)
+    );
   };
 }
 
-function transformIdentifier(fileIdentifiers: FileIdentifiers.T) {
+function transformIdentifier(
+  fileIdentifiers: FileIdentifiers.T,
+  alternatePath: string | undefined
+) {
   return function(symbol: string): string {
-    const operations = OperationGroup.parseSymbol(symbol);
+    const operations = Operations.parseSymbol(symbol);
 
-    const result = OperationGroup.getIdentifierForAlternate(
+    const result = Operations.getIdentifierForAlternate(
       operations,
-      fileIdentifiers
+      fileIdentifiers,
+      alternatePath
     );
 
     return isError(result) ? symbol : result.ok;

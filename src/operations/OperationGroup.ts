@@ -1,4 +1,5 @@
 import { Result } from "result-async";
+import * as path from "path";
 
 import * as FileIdentifiers from "../identifiers/FileIdentifiers";
 import { runAllOperators } from "./Operation";
@@ -6,8 +7,17 @@ import { runAllValidators } from "./ValidatorOperation";
 
 export { OperationGroup as T };
 
+export enum Operation {
+  Directories = "directories",
+  Filename = "directories",
+  RelativePath = "relativePath",
+  AbsolutePath = "absolutePath"
+}
+
+export const operationTypes = Object.keys(Operation);
+
 export interface OperationGroup {
-  type: FileIdentifiers.IdentifierType;
+  type: Operation;
   operations: string[];
 }
 
@@ -15,7 +25,7 @@ export function parseSymbol(symbol: string): OperationGroup {
   const [type, ...operations] = symbol
     .replace("{", "")
     .replace("}", "")
-    .split("|") as [FileIdentifiers.IdentifierType, ...string[]];
+    .split("|") as [Operation, ...string[]];
 
   return { type, operations };
 }
@@ -28,9 +38,14 @@ export function parseSymbol(symbol: string): OperationGroup {
  */
 export function getIdentifierForAlternate(
   operationGroup: OperationGroup,
-  fileIdentifiers: FileIdentifiers.T
+  fileIdentifiers: FileIdentifiers.T,
+  pathToAlternate?: string
 ): Result<string, null> {
-  const startingIdentifier = lookupIdentifier(operationGroup, fileIdentifiers);
+  const startingIdentifier = lookupIdentifier(
+    operationGroup,
+    fileIdentifiers,
+    pathToAlternate
+  );
 
   return runAllOperators(startingIdentifier, operationGroup.operations);
 }
@@ -45,9 +60,21 @@ export function validateIdentifier(
 /** Get an identifier for the group */
 function lookupIdentifier(
   operationGroup: OperationGroup,
-  fileIdentifiers: FileIdentifiers.T
-) {
-  return operationGroup.type === "directories"
-    ? fileIdentifiers.directories[0]
-    : fileIdentifiers.filename;
+  fileIdentifiers: FileIdentifiers.T,
+  pathToAlternate: string | undefined
+): string {
+  const type = operationGroup.type;
+  if (type === Operation.Directories) {
+    // TODO: Multiple directories
+    return fileIdentifiers.directories[0];
+  }
+  if (type === Operation.RelativePath) {
+    if (!pathToAlternate) return fileIdentifiers.absolutePath;
+
+    return path.relative(pathToAlternate, fileIdentifiers.absolutePath);
+  }
+  if (type === Operation.AbsolutePath) {
+    return fileIdentifiers.absolutePath;
+  }
+  return fileIdentifiers.filename;
 }

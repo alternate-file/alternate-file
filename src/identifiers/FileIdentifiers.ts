@@ -20,13 +20,11 @@ import {
 
 export { FileIdentifiers as T };
 
-export type IdentifierType = "directories" | "filename";
-
 /** All the identifiers for a file path */
 interface FileIdentifiers {
+  absolutePath: string;
   directories: string[];
   filename: string;
-  rootPath: string;
 }
 
 /**
@@ -36,8 +34,7 @@ interface FileIdentifiers {
  */
 export function getIdentifiersFromPath(
   filePath: string,
-  pattern: string,
-  rootPath: string
+  pattern: string
 ): Result<FileIdentifiers, string> {
   const operationGroups = Operations.patternToOperators(pattern);
   if (isError(operationGroups)) return operationGroups;
@@ -46,7 +43,7 @@ export function getIdentifiersFromPath(
     pattern,
     patternToMatcherRegex,
     capturesFromPath(filePath),
-    okChain(capturesToIdentifiers(operationGroups.ok, rootPath)),
+    okChain(capturesToIdentifiers(operationGroups.ok, filePath)),
     errorReplace("no match")
   );
 }
@@ -70,7 +67,7 @@ function capturesFromPath(path: string) {
 
 function capturesToIdentifiers(
   operationGroups: Operations.OperationGroup[],
-  rootPath: string
+  absolutePath: string
 ) {
   return function(captures: string[]): Result<FileIdentifiers, null> {
     return pipe(
@@ -79,12 +76,12 @@ function capturesToIdentifiers(
         createIdentifierForPath(capture, operationGroup)
       ),
       allOk,
-      okThen(combineIdentifiers(rootPath))
+      okThen(combineIdentifiers(absolutePath))
     );
   };
 }
 
-function combineIdentifiers(rootPath: string) {
+function combineIdentifiers(absolutePath: string) {
   return function(fileIdentifierList: FileIdentifier[]): FileIdentifiers {
     return fileIdentifierList.reduce(
       (fileIdentifiers: FileIdentifiers, fileIdentifier: FileIdentifier) => {
@@ -99,7 +96,7 @@ function combineIdentifiers(rootPath: string) {
             };
       },
       {
-        rootPath,
+        absolutePath,
         directories: [],
         filename: ""
       }
