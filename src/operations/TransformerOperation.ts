@@ -1,4 +1,5 @@
 import { ok, Result } from "result-async";
+import { pascalCase as capitalize, lowerCase as lowercase } from "change-case";
 
 export type IdentifierTransformer = (value: string) => string;
 
@@ -9,7 +10,8 @@ export interface IdentifierTransformers {
 export const transformerFunctions: {
   [name: string]: (value: string) => string;
 } = {
-  lowercase
+  lowercase,
+  capitalize
 };
 
 export const transformerNames = Object.keys(transformerFunctions);
@@ -23,10 +25,4 @@ export function run(value: string, operator: string): Result<string, null> {
   const f = transformerFunctions[operator];
 
   return ok(f(value));
-}
-
-/* Transformers */
-
-export function lowercase(s: string): string {
-  return s.toLowerCase();
 }

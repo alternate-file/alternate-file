@@ -1,4 +1,4 @@
-import * as IdentifierOperator from "./IdentifierOperator";
+import * as IdentifierOperator from "./Operation";
 
 export const allIdentifierSymbolsRegex = makeRegex(
   IdentifierOperator.names,
@@ -13,11 +13,4 @@ function makeRegex(names: string[], flags?: string): RegExp {
   const optionsGroup = `(?:${option}\\|?)`;
 
   return new RegExp(`({${optionsGroup}+})`, flags);
-}
-
-export function splitSymbol(symbol: string): string[] {
-  return symbol
-    .replace("{", "")
-    .replace("}", "")
-    .split("|");
 }

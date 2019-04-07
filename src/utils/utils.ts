@@ -49,6 +49,16 @@ export function toPairs<Value>(dictionary: {
   );
 }
 
+/** Convert to an object from a list of tuples. */
+export function fromPairs<T>(pairs: [string, T][]): { [key: string]: T } {
+  const object: { [key: string]: T } = {};
+
+  pairs.forEach(([key, value]) => {
+    object[key] = value;
+  });
+  return object;
+}
+
 /** Shallow flatten a list. */
 export function flatten<T>(xss: T[][]): T[] {
   return xss.reduce((acc, xs) => acc.concat(xs), []);
@@ -77,6 +87,15 @@ export function isNil(x: any): boolean {
 
 export const titleCase = (s: string): string =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
+
+/** Map over the keys and values of an object */
+export function mapObject<T, U>(
+  object: { [key: string]: T },
+  f: (key: string, value: T) => [string, U]
+): { [key: string]: U } {
+  const pairs = Object.keys(object).map(key => f(key, object[key]));
+  return fromPairs(pairs);
+}
 
 type Unary<In, Out> = (x: In) => Out;
 

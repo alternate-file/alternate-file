@@ -1,6 +1,6 @@
-import { ok, error, Result, errorReplace } from "result-async";
+import { ok, error, Result } from "result-async";
 
-import * as IdentifierTransformer from "./IdentifierTransformer";
+import { transformerFunctions } from "./TransformerOperation";
 import { reduceUnless } from "../utils/result-utils";
 
 export type IdentifierValidator = (value: string) => boolean;
@@ -10,7 +10,8 @@ export interface IdentifierValidators {
 }
 
 const validatorFunctions: IdentifierValidators = {
-  isLowercase
+  isLowercase: isTransformed(transformerFunctions.lowercase),
+  isCapitalized: isTransformed(transformerFunctions.capitalize)
 };
 
 export const validatorNames = Object.keys(validatorFunctions);
@@ -30,22 +31,20 @@ export function filterValidators(operators: string[]): string[] {
   return operators.filter(isValidator);
 }
 
-export function validateCapture(
-  operators: string[],
-  capture: string
-): Result<string, string> {
+export function runAllValidators(
+  identifier: string,
+  operators: string[]
+): Result<string, null> {
   return reduceUnless(
     // TODO: Reverse transformers?
     filterValidators(operators),
-    (capture: string, operator) => {
-      return errorReplace("pattern doesn't match")(run(capture, operator));
-    },
-    capture
+    run,
+    identifier
   );
 }
 
-/* Validators */
-
-export function isLowercase(s: string) {
-  return s === IdentifierTransformer.lowercase(s);
+function isTransformed(transformer: (s: string) => string) {
+  return function(s: string): boolean {
+    return s === transformer(s);
+  };
 }
