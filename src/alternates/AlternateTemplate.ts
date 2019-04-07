@@ -1,4 +1,6 @@
 import { pipe } from "../utils/utils";
+import * as Operations from "../operations";
+import * as FileIdentifiers from "../identifiers";
 
 export { AlternateTemplate as T };
 
@@ -15,25 +17,35 @@ interface AlternateTemplate {
  * Fill a template given a pattern and a path
  * @param alternateTemplate
  */
-export function fillTemplate(alternateTemplate: AlternateTemplate): string {
+export function fillTemplate(
+  alternateTemplate: AlternateTemplate,
+  rootPath: string
+): string {
   if (!alternateTemplate.template) return "";
 
-  const { path, template } = alternateTemplate;
+  const { path, pattern, template } = alternateTemplate;
 
-  const transformers = patternToTransformers(alternateTemplate.pattern);
+  const operationGroups = Operations.patternToOperators(
+    alternateTemplate.pattern
+  );
+
+  const fileIdentifiers = FileIdentifiers.getIdentifiersFromPath(
+    path,
+    pattern,
+    rootPath
+  );
 
   return pipe(
     alternateTemplate.pattern,
     patternToRegex,
     capturesFromPath(path),
-    transformCaptures(transformers),
+    transformCaptures(operationGroups),
     fillTemplateWithCaptures(template),
     joinTemplate
   );
 }
 
 // TODO
-function patternToTransformers(pattern: string): string[][] {}
 function patternToRegex(pattern: string): RegExp {}
 function capturesFromPath(path: string) {
   return function(regex: RegExp): string[] {};

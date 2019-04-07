@@ -1,4 +1,3 @@
-import { pipe, zip, map } from "../utils/utils";
 import {
   ok,
   error,
@@ -6,23 +5,28 @@ import {
   isError,
   allOk,
   okThen,
-  okChain
+  okChain,
+  errorReplace
 } from "result-async";
-import { allIdentifierSymbolsRegex, splitSymbol, validateCapture } from ".";
+import { pipe, zip, map } from "../utils/utils";
+
+import * as Operations from "../operations";
+
+import {
+  FileIdentifier,
+  createIdentifierForPath,
+  isFilenameIdentifier
+} from "./FileIdentifier";
 
 export { FileIdentifiers as T };
 
 export type IdentifierType = "directories" | "filename";
 
+/** All the identifiers for a file path */
 interface FileIdentifiers {
   directories: string[];
   filename: string;
   rootPath: string;
-}
-
-interface FileIdentifier {
-  type: IdentifierType;
-  value: string;
 }
 
 /**
@@ -30,33 +34,27 @@ interface FileIdentifier {
  * extract the useful identifiers if there's a match,
  * or return an error if there isn't a match.
  */
-export function extractIdentifiers(
+export function getIdentifiersFromPath(
   filePath: string,
   pattern: string,
   rootPath: string
 ): Result<FileIdentifiers, string> {
-  const operatorPipelines = patternToOperators(pattern);
-  if (isError(operatorPipelines)) return operatorPipelines;
+  const operationGroups = Operations.patternToOperators(pattern);
+  if (isError(operationGroups)) return operationGroups;
 
   return pipe(
     pattern,
     patternToMatcherRegex,
     capturesFromPath(filePath),
-    okChain(capturesToIdentifiers(operatorPipelines.ok, rootPath))
+    okChain(capturesToIdentifiers(operationGroups.ok, rootPath)),
+    errorReplace("no match")
   );
 }
 
-function patternToOperators(pattern: string): Result<string[][], string> {
-  const matches = pattern.match(allIdentifierSymbolsRegex);
-  if (!matches) return error("invalid pattern");
-
-  const operatorPipelines = matches.map(splitSymbol);
-
-  return ok(operatorPipelines);
-}
-
 function patternToMatcherRegex(pattern: string): RegExp {
-  return new RegExp(pattern.replace(allIdentifierSymbolsRegex, "(.+)"));
+  return new RegExp(
+    pattern.replace(Operations.allIdentifierSymbolsRegex, "(.+)")
+  );
 }
 
 function capturesFromPath(path: string) {
@@ -71,14 +69,14 @@ function capturesFromPath(path: string) {
 }
 
 function capturesToIdentifiers(
-  operatorPipelines: string[][],
+  operationGroups: Operations.OperationGroup[],
   rootPath: string
 ) {
-  return function(captures: string[]): Result<FileIdentifiers, string> {
+  return function(captures: string[]): Result<FileIdentifiers, null> {
     return pipe(
-      zip(captures, operatorPipelines),
-      map(([capture, operatorPipeline]) =>
-        captureToIdentifier(capture, operatorPipeline)
+      zip(captures, operationGroups),
+      map(([capture, operationGroup]) =>
+        createIdentifierForPath(capture, operationGroup)
       ),
       allOk,
       okThen(combineIdentifiers(rootPath))
@@ -86,29 +84,18 @@ function capturesToIdentifiers(
   };
 }
 
-function captureToIdentifier(
-  capture: string,
-  operatorPipeline: string[]
-): Result<FileIdentifier, string> {
-  const [captureType, ...actualOperators] = operatorPipeline;
-
-  const type: IdentifierType =
-    captureType === "filename" ? "filename" : "directories";
-
-  const finalValue = validateCapture(actualOperators, capture);
-
-  return okThen((value: string) => ({ type, value }))(finalValue);
-}
-
 function combineIdentifiers(rootPath: string) {
   return function(fileIdentifierList: FileIdentifier[]): FileIdentifiers {
     return fileIdentifierList.reduce(
-      (pathParts: FileIdentifiers, pathPart: FileIdentifier) => {
-        return pathPart.type === "filename"
-          ? { ...pathParts, filename: pathPart.value }
+      (fileIdentifiers: FileIdentifiers, fileIdentifier: FileIdentifier) => {
+        return isFilenameIdentifier(fileIdentifier)
+          ? { ...fileIdentifiers, filename: fileIdentifier.value }
           : {
-              ...pathParts,
-              directories: [...pathParts.directories, pathPart.value]
+              ...fileIdentifiers,
+              directories: [
+                ...fileIdentifiers.directories,
+                fileIdentifier.value
+              ]
             };
       },
       {

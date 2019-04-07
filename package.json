@@ -58,6 +58,7 @@
   "dependencies": {
     "@types/find-up": "^2.1.1",
     "@types/node": "^11.10.0",
+    "change-case": "^3.1.0",
     "find-up": "^3.0.0",
     "minimist": "^1.2.0",
     "remeda": "0.0.9",
