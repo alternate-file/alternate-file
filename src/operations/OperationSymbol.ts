@@ -1,13 +1,27 @@
 import * as IdentifierOperator from "./Operation";
+import { Operation, operationTypes } from "./OperationGroup";
 
-export const allIdentifierSymbolsRegex = makeRegex(
+export function addSymbolsToPattern(path: string): string {
+  return path
+    .replace(/\*\*/g, Operation.Directories)
+    .replace(/\*/g, Operation.Filename)
+    .replace(operationTypeReplacerRegex, "$1{$2}");
+}
+
+export const allIdentifierSymbolsRegex = makeSymbolRegex(
   IdentifierOperator.names,
   "g"
 );
 
-export const oneIdentifierSymbolRegex = makeRegex(IdentifierOperator.names);
+const operationTypeReplacerRegex = makeOperationTypeRegex();
 
-function makeRegex(names: string[], flags?: string): RegExp {
+function makeOperationTypeRegex(): RegExp {
+  const typeGroup = operationTypes.join("|");
+
+  return new RegExp(`([^{])(${typeGroup})`, "g");
+}
+
+function makeSymbolRegex(names: string[], flags?: string): RegExp {
   const optionsList = names.concat(["directories", "filename"]);
   const option = `(?:${optionsList.join("|")})`;
   const optionsGroup = `(?:${option}\\|?)`;

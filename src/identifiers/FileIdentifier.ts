@@ -1,5 +1,5 @@
 import { OperationGroup, validateIdentifier } from "../operations";
-import { ok, isError, Result } from "result-async";
+import { ok, error, isError, Result } from "result-async";
 
 export type IdentifierType = "directories" | "filename";
 
@@ -20,8 +20,14 @@ export function createIdentifierForPath(
   const validationResult = validateIdentifier(operationGroup, capture);
   if (isError(validationResult)) return validationResult;
 
+  const type = operationGroup.type;
+
+  if (!(type === "directories" || type === "filename")) {
+    return error(null);
+  }
+
   return ok({
-    type: operationGroup.type,
+    type,
     value: capture
   });
 }

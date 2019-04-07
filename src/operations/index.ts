@@ -10,7 +10,6 @@ export {
 } from "./OperationGroup";
 
 export {
-  oneIdentifierSymbolRegex,
   allIdentifierSymbolsRegex
 } from "./OperationSymbol";
 

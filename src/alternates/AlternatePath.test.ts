@@ -1,25 +1,11 @@
-import { findAlternatePath, sanitizePattern } from "./AlternatePath";
+import { findAlternatePath } from "./AlternatePath";
 import { okOrThrow, errorOrThrow } from "result-async";
 
 describe("AlternatePath", () => {
-  describe("sanitizePattern", () => {
-    it("sanitizes stars without operators", () => {
-      expect(sanitizePattern("src/**/*.js")).toEqual(
-        "src/{directories}/{filename}.js"
-      );
-    });
-
-    it("sanitizes stars with operators", () => {
-      expect(sanitizePattern("src/{**}/{*|isCapitalized}.js")).toEqual(
-        "src/{directories}/{filename|isCapitalized}.js"
-      );
-    });
-  });
   describe("findAlternatePath", () => {
     it("finds an alternate path", () => {
       const alternate = findAlternatePath(
-        "/tmp",
-        "src/components/mine.js",
+        "/project/src/components/mine.js",
         "src/**/*.js",
         "src/**/__test__/*.test.js"
       );
@@ -29,13 +15,39 @@ describe("AlternatePath", () => {
 
     it("returns an error when there's not a match", () => {
       const alternate = findAlternatePath(
-        "/tmp",
-        "app/components/mine.rb",
+        "/project/app/components/mine.rb",
         "src/**/*.js",
         "src/**/__test__/*.test.js"
       );
 
       expect(errorOrThrow(alternate)).toBeTruthy();
+    });
+
+    it("fills out a template", () => {
+      const alternate = findAlternatePath(
+        "/project/src/components/mine.js",
+        "src/**/*.js",
+        [
+          "import {} from '{relativePath}'",
+          "",
+          "describe('{filename|capitalize}', () => {",
+          "  it('', () => {",
+          "  });",
+          "});"
+        ].join("\n"),
+        "/project/src/components/__test__/mine.js"
+      );
+
+      expect(okOrThrow(alternate)).toBe(
+        [
+          "import {} from '../mine'",
+          "",
+          "describe('Mine', () => {",
+          "  it('', () => {",
+          "  });",
+          "});"
+        ].join("\n")
+      );
     });
   });
 });
