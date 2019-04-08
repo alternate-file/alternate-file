@@ -1,4 +1,4 @@
-import { validateIdentifier } from "./OperationGroup";
+import { validateIdentifier, OperationType } from "./OperationGroup";
 import { okOrThrow, errorOrThrow } from "result-async";
 
 describe("OperationGroup", () => {
@@ -6,7 +6,7 @@ describe("OperationGroup", () => {
     it("validates a valid identifier", () => {
       const result = validateIdentifier(
         {
-          type: "filename",
+          type: OperationType.Filename,
           operations: ["isLowercase"]
         },
         "foo"
@@ -17,7 +17,7 @@ describe("OperationGroup", () => {
     it("finds an invalid identifier", () => {
       const result = validateIdentifier(
         {
-          type: "filename",
+          type: OperationType.Filename,
           operations: ["isCapitalized"]
         },
         "foo"

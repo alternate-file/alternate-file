@@ -12,10 +12,9 @@ import {
   errorRescueAsync
 } from "result-async";
 import { pipeA } from "pipeout";
-import { map, toPairs, flatten, compact } from "./utils";
-import * as AlternatePattern from "../AlternatePattern";
+import { map, toPairs, flatten, compact } from "../utils/utils";
 import * as File from "../utils/File";
-import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
+import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
 
 /**
  * the data type for a .projections.json file.

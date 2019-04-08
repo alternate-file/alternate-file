@@ -5,9 +5,9 @@
     template: ["import React from 'react';"],
     alternateTemplate: [
       "import React from 'react';",
-      "import {fileName} from '{%relativePath%}'",
+      "import {fileName} from '{relativePath}'",
       "",
-      "describe('{%fileName%}', () => {",
+      "describe('{fileName}', () => {",
       "  it('' => {",
       "  });",
       "});"
@@ -21,7 +21,7 @@
       "import React from 'react';",
       "import {fileName} from '{relativePath}'",
       "",
-      "describe('{%fileName%}', () => {",
+      "describe('{fileName}', () => {",
       "  it('' => {",
       "  });",
       "});"

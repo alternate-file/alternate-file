@@ -7,17 +7,15 @@ import { runAllValidators } from "./ValidatorOperation";
 
 export { OperationGroup as T };
 
-export enum Operation {
+export enum OperationType {
   Directories = "directories",
-  Filename = "directories",
+  Filename = "filename",
   RelativePath = "relativePath",
   AbsolutePath = "absolutePath"
 }
 
-export const operationTypes = Object.keys(Operation);
-
 export interface OperationGroup {
-  type: Operation;
+  type: OperationType;
   operations: string[];
 }
 
@@ -25,7 +23,7 @@ export function parseSymbol(symbol: string): OperationGroup {
   const [type, ...operations] = symbol
     .replace("{", "")
     .replace("}", "")
-    .split("|") as [Operation, ...string[]];
+    .split("|") as [OperationType, ...string[]];
 
   return { type, operations };
 }
@@ -64,17 +62,20 @@ function lookupIdentifier(
   pathToAlternate: string | undefined
 ): string {
   const type = operationGroup.type;
-  if (type === Operation.Directories) {
+  if (type === OperationType.Directories) {
     // TODO: Multiple directories
     return fileIdentifiers.directories[0];
   }
-  if (type === Operation.RelativePath) {
+  if (type === OperationType.Filename) {
+    return fileIdentifiers.filename;
+  }
+  if (type === OperationType.RelativePath) {
     if (!pathToAlternate) return fileIdentifiers.absolutePath;
 
-    return path.relative(pathToAlternate, fileIdentifiers.absolutePath);
+    return path.relative(
+      path.dirname(pathToAlternate),
+      fileIdentifiers.absolutePath
+    );
   }
-  if (type === Operation.AbsolutePath) {
-    return fileIdentifiers.absolutePath;
-  }
-  return fileIdentifiers.filename;
+  return fileIdentifiers.absolutePath;
 }

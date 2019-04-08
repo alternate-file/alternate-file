@@ -4,14 +4,13 @@ import { allIdentifierSymbolsRegex } from "./OperationSymbol";
 
 export {
   OperationGroup,
+  OperationType as Operation,
   parseSymbol,
   validateIdentifier,
   getIdentifierForAlternate
 } from "./OperationGroup";
 
-export {
-  allIdentifierSymbolsRegex
-} from "./OperationSymbol";
+export { allIdentifierSymbolsRegex } from "./OperationSymbol";
 
 export { runAllValidators } from "./ValidatorOperation";
 

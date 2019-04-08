@@ -159,7 +159,7 @@ async function makeDirectoryForFile(filePath: string): ResultP<string, string> {
   // prettier-ignore
   return pipeA
     (filePath)
-    (path.directories)
+    (path.dirname)
     (makeDirectoryDeep)
     (okReplace(filePath))
     .value
