@@ -6,7 +6,7 @@ export {
 export {
   AlternateFileNotFoundError,
   isAlternateFileNotFoundError
-} from "./projections/AlternateFileNotFoundError";
+} from "./alternates/AlternateFileNotFoundError";
 export {
   initializeProjections,
   possibleFrameworks

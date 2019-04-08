@@ -1,7 +1,7 @@
-import { OperationGroup, validateIdentifier } from "../operations";
+import { OperationGroup, Operation, validateIdentifier } from "../operations";
 import { ok, error, isError, Result } from "result-async";
 
-export type IdentifierType = "directories" | "filename";
+export type IdentifierType = Operation.Directories | Operation.Filename;
 
 /** Identifier for a part of a file path */
 export interface FileIdentifier {
@@ -22,7 +22,7 @@ export function createIdentifierForPath(
 
   const type = operationGroup.type;
 
-  if (!(type === "directories" || type === "filename")) {
+  if (!(type === Operation.Directories || type === Operation.Filename)) {
     return error(null);
   }
 

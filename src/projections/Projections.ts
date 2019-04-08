@@ -17,7 +17,7 @@ import * as AlternatePattern from "../AlternatePattern";
 import * as File from "../utils/File";
 import { map, toPairs, flatten, compact } from "../utils/utils";
 
-import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
+import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
 
 /**
  * the data type for a .projections.json file.
