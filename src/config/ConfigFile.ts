@@ -1,127 +1,78 @@
 import * as path from "path";
 import {
-  either,
   error,
-  errorRescueAsync
   errorThen,
   isError,
-  ok,
   okChain,
-  okChainAsync,
   okThen,
   pipeAsync,
   ResultP,
+  Result
 } from "result-async";
 
 import * as AlternatePath from "../alternates/AlternatePath";
 import * as File from "../utils/File";
-import { map, toPairs, flatten, compact } from "../utils/utils";
+import { map, flatten, compact, pipe } from "../utils/utils";
 
 import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
-import { template } from "@babel/core";
+import { filterOks } from "../utils/result-utils";
+
+export { ConfigFile as T };
 
 /**
  * the data type for a .projections.json file.
  */
-export interface ConfigFile {
+interface ConfigFile {
   rootPath: string;
-  files: FileConfig[]
+  files: FileConfig[];
+}
+
+interface UserFileConfig {
+  path: string;
+  alternate: string | string[];
+  template: string[];
+  alternateTemplate: string[];
 }
 
 interface FileConfig {
-  path: string,
-  alternate: string,
-  template: string[],
-  alternateTemplate: string[]
+  path: string;
+  alternate: string;
+  template: string;
+  alternateTemplate: string;
 }
 
-// TOOD: json5 or json
+// TODO: json5 or json
 export const configFileName = ".alternate-file.json5";
-const starRegex = /\*/;
-const filenameRegex = /\{\}|\{filename\}/;
 
 /**
  * Find the path of the alternate file (if the alternate file actually exists)
  * @param userFilePath
  * @return ResultP(alternate file path, list of all attempted alternate files)
  */
-export const findAlternateFile = async (
+export const possibleAlternateFiles = async (
   userFilePath: string
-): ResultP<string, AlternateFileNotFoundError> => {
+): ResultP<AlternatePath.T[], AlternateFileNotFoundError> => {
   const result = await findConfigFile(userFilePath);
+  const normalizedUserFilePath = path.resolve(userFilePath);
 
   if (isError(result)) {
     return error({
-      message: `No ${configFileName} found as a parent of ${userFilePath}`,
+      message: `No ${configFileName} found as a parent of ${normalizedUserFilePath}`,
       startingFile: userFilePath
     });
   }
 
   const configFilePath = result.ok;
-  const normalizedUserFilePath = path.resolve(userFilePath);
 
   return pipeAsync(
     configFilePath,
     parseConfigFile,
-    okThen(projectionsToAlternatePatterns),
-    okChainAsync(alternatePathIfExists(normalizedUserFilePath, configFilePath))
+    okThen(combineFileConfigs(result.ok)),
+    okChain(getPossibleAlternates(normalizedUserFilePath))
   );
 };
 
-/**
- * Find the path of the alternate file if the alternate file actually exists, or create the file if it doesn't.
- * @param userFilePath
- * @return ResultP(alternate file path, error if no possible alternate file)
- *
- */
-export const findOrCreateAlternateFile = async (
-  userFilePath: string
-): ResultP<string, AlternateFileNotFoundError> => {
-  return pipeAsync(
-    userFilePath,
-    // TOOD:
-    AlternatePath.findAlternatePath,
-    errorRescueAsync(async (err: AlternateFileNotFoundError) => {
-      const alternatesAttempted = err.alternatesAttempted || [];
-      if (alternatesAttempted.length === 0) {
-        return error({
-          ...err,
-          message: `Couldn't create an alternate file for '${userFilePath}': it didn't match any known patterns.`
-        });
-      }
-
-      const newAlternateFile = alternatesAttempted[0];
-
-      return either(
-        await File.makeFile(newAlternateFile),
-        always(ok(newAlternateFile)),
-        always(
-          error({
-            ...err,
-            message: `Couldn't create file ${newAlternateFile}`
-          })
-        )
-      );
-    })
-  );
-};
-
-/**
- * Parse the projections file into alternate pattern lookup objects.
- * @param projections
- */
-export const projectionsToAlternatePatterns = (
-  projections: Projections
-): AlternatePattern.t[] => {
-  const pairs = toPairs(projections) as ProjectionPair[];
-  const allPairs = flatten(pairs.map(splitOutAlternates));
-
-  return allPairs.map(projectionPairToAlternatePattern);
-};
-
-export const create = () => {};
-
-export async function findConfigFile(userFilePath: string) {
+function findConfigFile(userFilePath: string): ResultP<string, string> {
   return File.findFileFrom(configFileName)(userFilePath);
 }
 
@@ -130,14 +81,14 @@ export async function findConfigFile(userFilePath: string) {
  * @param userFilePath
  * @returns projections data
  */
-export const parseConfigFile = async (
+const parseConfigFile = async (
   configFilePath: string
-): ResultP<ConfigFile, AlternateFileNotFoundError> => {
+): ResultP<UserFileConfig[], AlternateFileNotFoundError> => {
   return pipeAsync(
     configFilePath,
     File.readFile,
     okThen((data: string): string => (data === "" ? "{}" : data)),
-    okChain((x: string) => File.parseJson<ConfigFile>(x, configFilePath)),
+    okChain((x: string) => File.parseJson<UserFileConfig[]>(x, configFilePath)),
     errorThen((err: string) => ({
       startingFile: configFilePath,
       message: err
@@ -145,72 +96,67 @@ export const parseConfigFile = async (
   );
 };
 
-const splitOutAlternates = (pair: ProjectionPair): SingleProjectionPair[] => {
-  const [main, { alternate }] = pair;
+const combineFileConfigs = (rootPath: string) => (
+  fileConfigs: UserFileConfig[]
+): ConfigFile => {
+  const files = flatten(fileConfigs.map(splitOutFileAlternates));
 
-  if (Array.isArray(alternate)) {
-    return alternate.map(
-      foo => [main, { alternate: foo }] as SingleProjectionPair
-    );
-  }
-
-  if (alternate) {
-    return [[main, { alternate }]] as SingleProjectionPair[];
-  }
-
-  throw new Error(`${main} is missing the alternate key`);
+  return {
+    files,
+    rootPath
+  };
 };
 
-/**
- * Go from alternate patterns to an alternate file path (if the file exists).
- * @param userFilePath - A file path to find an alternate file for.
- * @param patterns - Alternate Patterns from a projections file.
- */
-const alternatePathIfExists = (
-  userFilePath: string,
-  projectionsPath: string
-) => (
-  patterns: AlternatePattern.t[]
-): ResultP<string, AlternateFileNotFoundError> => {
-  return pipeAsync(
-    patterns,
-    map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
-    (paths: string[]) => compact(paths) as string[],
-    File.findExisting,
-    errorThen((alternatesAttempted: string[]) => ({
-      alternatesAttempted,
-      message: `No alternate found for ${userFilePath}. Tried: ${alternatesAttempted}`,
-      startingFile: userFilePath
-    }))
+const splitOutFileAlternates = (fileConfig: UserFileConfig): FileConfig[] => {
+  const alternates: string[] = Array.isArray(fileConfig.alternate)
+    ? fileConfig.alternate
+    : [fileConfig.alternate];
+
+  return pipe(
+    alternates,
+    map(
+      (alternate: string): FileConfig => ({
+        alternate,
+        path: fileConfig.path,
+        template: fileConfig.template.join("\n"),
+        alternateTemplate: fileConfig.alternateTemplate.join("\n")
+      })
+    ),
+    map((fileConfig: FileConfig) => [
+      fileConfig,
+      flipAlternateToMain(fileConfig)
+    ]),
+    flatten
   );
 };
 
-const projectionPairToAlternatePattern = ([
-  main,
-  { alternate }
-]: SingleProjectionPair): AlternatePattern.t => ({
-  path: mainPathToAlternate(main),
-  alternate: alternatePathToAlternate(alternate)
+const flipAlternateToMain = (fileConfig: FileConfig): FileConfig => ({
+  path: fileConfig.alternate,
+  alternate: fileConfig.path,
+  template: fileConfig.alternateTemplate,
+  alternateTemplate: fileConfig.template
 });
 
-const mainPathToAlternate = (path: string): string => {
-  if (!starRegex.test(path)) {
-    throw new Error(`${path} is an invalid main projection path`);
-  }
-
-  const taggedPath = /\*\*/.test(path) ? path : path.replace("*", "**/*");
-
-  return taggedPath
-    .replace(/\*\*/g, "{directories}")
-    .replace("*", "{filename}");
+const getPossibleAlternates = (userFilePath: string) => (
+  config: ConfigFile
+): Result<AlternatePath.T[], AlternateFileNotFoundError> => {
+  return pipe(
+    config.files,
+    map(attemptToMatchAlternate(userFilePath, config.rootPath)),
+    filterOks({
+      message: `Couldn't create an alternate file for '${userFilePath}': it didn't match any known patterns.`,
+      startingFile: userFilePath
+    })
+  );
 };
 
-const alternatePathToAlternate = (path: string): string => {
-  if (!filenameRegex.test(path)) {
-    throw new Error(`${path} is an invalid alternate projection path`);
-  }
-
-  return path.replace(/\{\}/g, "{directories}/{filename}");
-};
-
-const always = <T>(x: T) => (): T => x;
+const attemptToMatchAlternate = (userFilePath: string, rootPath: string) => (
+  fileConfig: FileConfig
+): Result<AlternatePath.T, string> =>
+  AlternatePath.findAlternatePath(
+    rootPath,
+    userFilePath,
+    fileConfig.path,
+    fileConfig.alternate,
+    fileConfig.alternateTemplate
+  );

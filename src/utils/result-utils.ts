@@ -1,4 +1,4 @@
-import { Result, ok, isError } from "result-async";
+import { Result, ok, error, isError, isOk, allOk } from "result-async";
 
 /**
  * Reduce, with the option of an early return.
@@ -75,4 +75,16 @@ export function reduceUnless<Element, Acc, ErrorMessage>(
   }
 
   return ok(acc);
+}
+
+export function filterOks<ErrorMessage>(onEmptyError: ErrorMessage) {
+  return function<OkData>(
+    results: Result<OkData, any>[]
+  ): Result<OkData[], ErrorMessage> {
+    const okResults = results.filter(isOk);
+
+    if (okResults.length === 0) return error(onEmptyError);
+
+    return allOk(okResults);
+  };
 }
