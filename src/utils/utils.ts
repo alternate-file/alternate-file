@@ -9,6 +9,8 @@ export const log = (...args: any[]) => <T>(data: T): T => {
   return data;
 };
 
+export const always = <T>(x: T) => (): T => x;
+
 /**
  * Async sleep
  * @param milliseconds
