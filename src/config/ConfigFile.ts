@@ -7,15 +7,12 @@ import {
   okThen,
   pipeAsync,
   ResultP,
-  Result
 } from "result-async";
 
-import * as AlternatePath from "../alternates/AlternatePath";
 import * as File from "../utils/File";
-import { map, flatten, compact, pipe } from "../utils/utils";
+import { map, flatten, pipe } from "../utils/utils";
 
 import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
-import { filterOks } from "../utils/result-utils";
 
 export { ConfigFile as T };
 
@@ -34,7 +31,7 @@ interface UserFileConfig {
   alternateTemplate: string[];
 }
 
-interface FileConfig {
+export interface FileConfig {
   path: string;
   alternate: string;
   template: string;
@@ -49,9 +46,9 @@ export const configFileName = ".alternate-file.json5";
  * @param userFilePath
  * @return ResultP(alternate file path, list of all attempted alternate files)
  */
-export const possibleAlternateFiles = async (
+export const lookupConfig = async (
   userFilePath: string
-): ResultP<AlternatePath.T[], AlternateFileNotFoundError> => {
+): ResultP<ConfigFile, AlternateFileNotFoundError> => {
   const result = await findConfigFile(userFilePath);
   const normalizedUserFilePath = path.resolve(userFilePath);
 
@@ -67,8 +64,7 @@ export const possibleAlternateFiles = async (
   return pipeAsync(
     configFilePath,
     parseConfigFile,
-    okThen(combineFileConfigs(result.ok)),
-    okChain(getPossibleAlternates(normalizedUserFilePath))
+    okThen(combineFileConfigs(result.ok))
   );
 };
 
@@ -136,27 +132,3 @@ const flipAlternateToMain = (fileConfig: FileConfig): FileConfig => ({
   template: fileConfig.alternateTemplate,
   alternateTemplate: fileConfig.template
 });
-
-const getPossibleAlternates = (userFilePath: string) => (
-  config: ConfigFile
-): Result<AlternatePath.T[], AlternateFileNotFoundError> => {
-  return pipe(
-    config.files,
-    map(attemptToMatchAlternate(userFilePath, config.rootPath)),
-    filterOks({
-      message: `Couldn't create an alternate file for '${userFilePath}': it didn't match any known patterns.`,
-      startingFile: userFilePath
-    })
-  );
-};
-
-const attemptToMatchAlternate = (userFilePath: string, rootPath: string) => (
-  fileConfig: FileConfig
-): Result<AlternatePath.T, string> =>
-  AlternatePath.findAlternatePath(
-    rootPath,
-    userFilePath,
-    fileConfig.path,
-    fileConfig.alternate,
-    fileConfig.alternateTemplate
-  );

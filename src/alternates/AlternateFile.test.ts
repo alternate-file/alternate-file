@@ -1,4 +1,4 @@
-import { findAlternatePath } from "./AlternatePath";
+import { findAlternatePath } from "./AlternateFile";
 import { okOrThrow, errorOrThrow } from "result-async";
 
 describe("AlternatePath", () => {
