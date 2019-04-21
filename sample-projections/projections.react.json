@@ -1,8 +1,7 @@
 {
   "*.js": {
-    "alternate": ["{directories}/__test__/{filename}.test.js", "{}.test.js"]
-    "template": """
-    """
+    "alternate": ["{directories}/__test__/{filename}.test.js", "{}.test.js"],
+    "template": ""
   },
   "*.jsx": {
     "alternate": [
@@ -13,4 +12,3 @@
     ]
   }
 }
-

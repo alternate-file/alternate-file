@@ -1,0 +1,75 @@
+{
+  "relationships": [
+    {
+      "main": "**/*.js",
+      "alternate": "**/__tests__/*.test.js"
+    },
+    {
+      "main": "**/*.ts",
+      "alternate": "**/__tests__/*.test.ts"
+    }
+  ],
+  "filetypes": [
+    {
+      "name": "React Component",
+      "path": "**/{*|isCapitalized).js",
+      "template": ["import React from 'react';"]
+    },
+    {
+      "name": "React Component Test",
+      "path": [
+        "**/__tests__/{*|isCapitalized}.test.js",
+        "**/{*|isCapitalized}.test.js"
+      ],
+      "template": [
+        "import React from 'react';",
+        "import { shallow } from 'enzyme';",
+        "",
+        "describe('{filename}', () => {",
+        "  let props;",
+        "  let wrapper;",
+        "",
+        "  beforeEach(() => {",
+        "    props = {}",
+        "    wrapper = shallow(<{filename} {...props} />);",
+        "  });",
+        "",
+        "  it('renders', () => {",
+        "    expect({filename}.find('.{filename}')).toHaveLength(1);",
+        "  });",
+        "",
+        "  describe('given', () => {",
+        "    it('', () => {",
+        "      expect(true).toBe(true)",
+        "    });",
+        "  });",
+        "});"
+      ]
+    },
+    {
+      "name": "Reducer",
+      "path": "reducers/**/*.js",
+      "template": [
+        ""
+      ]
+    },
+    {
+      "name": "Javascript File",
+      "path": "**/{*|isLowercase).js",
+      "alternate": "Javascript Test"
+    },
+    {
+      "name": "Javascript Test",
+      "path": ["**/__tests__/*.test.js", "**/*.test.js"],
+      "template": [
+        "import * as {filename} from '{relativePath}';",
+        "",
+        "describe('{filename}', () => {",
+        "  it('', () => {",
+        "    expect(true).toBe(true)",
+        "  });",
+        "});"
+      ]
+    }
+  ]
+}

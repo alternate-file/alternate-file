@@ -7,4 +7,4 @@ export {
 export {
   initializeProjections,
   possibleFrameworks
-} from "./projections/InitializeProjections";
+} from "./config/InitializeProjections";

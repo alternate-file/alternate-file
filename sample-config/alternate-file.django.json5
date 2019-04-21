@@ -1,0 +1,19 @@
+[
+  {
+    path: "**/*.py",
+    alternate: "**/test_*.py",
+    alternateTemplate: [
+      "from django.test import TestCase",
+      "",
+      "import {filename|capitalize}",
+      "",
+      "",
+      "class {filename|capitalize}Tests(TestCase):",
+      "    def setUp(self):",
+      "        None",
+      "",
+      "    def test_something(self):",
+      "        self.assertEqual(True, True)"
+    ]
+  }
+]

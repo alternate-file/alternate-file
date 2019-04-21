@@ -6,40 +6,29 @@ import {
   okChain,
   okThen,
   pipeAsync,
-  ResultP,
+  ResultP
 } from "result-async";
+
+import * as Projections from "./Projections";
 
 import * as File from "../utils/File";
 import { map, flatten, pipe } from "../utils/utils";
 
 import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
 
+import { ConfigFile, UserFileConfig, FileConfig } from "./types";
+import * as UpgradeProjects from "./UpgradeProjections";
+
 export { ConfigFile as T };
 
-/**
- * the data type for a .projections.json file.
- */
-interface ConfigFile {
-  rootPath: string;
-  files: FileConfig[];
-}
-
-interface UserFileConfig {
-  path: string;
-  alternate: string | string[];
-  template: string[];
-  alternateTemplate: string[];
-}
-
-export interface FileConfig {
-  path: string;
-  alternate: string;
-  template: string;
-  alternateTemplate: string;
-}
-
 // TODO: json5 or json
-export const configFileName = ".alternate-file.json5";
+export const configFileNames = [
+  ".alternate-file.json5",
+  ".alternate-file.json",
+  Projections.projectionsFilename
+];
+
+export const defaultConfigFileName = configFileNames[0]
 
 /**
  * Find the path of the alternate file (if the alternate file actually exists)
@@ -54,28 +43,40 @@ export const lookupConfig = async (
 
   if (isError(result)) {
     return error({
-      message: `No ${configFileName} found as a parent of ${normalizedUserFilePath}`,
+      message: noConfigFileMessage(normalizedUserFilePath),
       startingFile: userFilePath
     });
   }
 
   const configFilePath = result.ok;
+  const configFileParser = isProjectionsFile(configFilePath)
+    ? parseConfigFile
+    : UpgradeProjects.parseProjectionsFile;
 
   return pipeAsync(
     configFilePath,
-    parseConfigFile,
+    configFileParser,
     okThen(combineFileConfigs(result.ok))
   );
 };
 
+function noConfigFileMessage(path: string): string {
+  const names = configFileNames.join("|");
+  return `No file matching (${names}) found as a parent of ${path}`;
+}
+
+function isProjectionsFile(filename: string): boolean {
+  return filename === Projections.projectionsFilename;
+}
+
 function findConfigFile(userFilePath: string): ResultP<string, string> {
-  return File.findFileFrom(configFileName)(userFilePath);
+  return File.findFileFrom(configFileNames)(userFilePath);
 }
 
 /**
- * Read and parse the projections file.
+ * Read and parse the config file.
  * @param userFilePath
- * @returns projections data
+ * @returns config data
  */
 const parseConfigFile = async (
   configFilePath: string
@@ -106,7 +107,9 @@ const combineFileConfigs = (rootPath: string) => (
 const splitOutFileAlternates = (fileConfig: UserFileConfig): FileConfig[] => {
   const alternates: string[] = Array.isArray(fileConfig.alternate)
     ? fileConfig.alternate
-    : [fileConfig.alternate];
+    : fileConfig.alternate
+    ? [fileConfig.alternate]
+    : [];
 
   return pipe(
     alternates,
@@ -114,8 +117,8 @@ const splitOutFileAlternates = (fileConfig: UserFileConfig): FileConfig[] => {
       (alternate: string): FileConfig => ({
         alternate,
         path: fileConfig.path,
-        template: fileConfig.template.join("\n"),
-        alternateTemplate: fileConfig.alternateTemplate.join("\n")
+        template: (fileConfig.template || []).join("\n"),
+        alternateTemplate: (fileConfig.alternateTemplate || []).join("\n")
       })
     ),
     map((fileConfig: FileConfig) => [
