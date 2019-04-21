@@ -3,13 +3,13 @@ import * as tmp from "tmp";
 import { ok, okOrThrow } from "result-async";
 
 import {
-  initializeProjections,
+  initializeConfigFile,
   possibleFrameworks
-} from "./InitializeProjections";
+} from "./InitializeConfig";
 import { fileExists, readFile } from "../utils/File";
 import { projectionsFilename } from "./Projections";
 
-describe("InitializeProjections", () => {
+describe("InitializeConfig", () => {
   describe("possibleFrameworks", () => {
     it("starts with Empty", async () => {
       const frameworks = okOrThrow(await possibleFrameworks());
@@ -21,7 +21,7 @@ describe("InitializeProjections", () => {
       expect(frameworks).toContainEqual(["React", "react"]);
     });
   });
-  describe("initializeProjections", () => {
+  describe("initializeConfigFile", () => {
     let testDirectory: string;
     let testProjectionsPath: string;
     let testDirectoryCleaner: () => void;
@@ -57,7 +57,7 @@ describe("InitializeProjections", () => {
     it("creates a new empty file", async () => {
       await expectProjectionsNotToExist();
 
-      await initializeProjections(testDirectory, "");
+      await initializeConfigFile(testDirectory, "");
 
       await expectProjectionsToExist();
 
@@ -68,7 +68,7 @@ describe("InitializeProjections", () => {
       await expectProjectionsNotToExist();
 
       expect(
-        await initializeProjections(testDirectory, "react")
+        await initializeConfigFile(testDirectory, "react")
       ).toHaveProperty("ok");
 
       await expectProjectionsToExist();
@@ -80,16 +80,16 @@ describe("InitializeProjections", () => {
 
     it("does not create a new file if there's already one", async () => {
       expect(
-        await initializeProjections(testDirectory, "react")
+        await initializeConfigFile(testDirectory, "react")
       ).toHaveProperty("ok");
-      expect(await initializeProjections(testDirectory, "")).toHaveProperty(
+      expect(await initializeConfigFile(testDirectory, "")).toHaveProperty(
         "error"
       );
     });
 
     it("does not create a new file if its an unknown framework", async () => {
       expect(
-        await initializeProjections(testDirectory, "something weird")
+        await initializeConfigFile(testDirectory, "something weird")
       ).toHaveProperty("error");
 
       await expectProjectionsNotToExist();
@@ -97,7 +97,7 @@ describe("InitializeProjections", () => {
 
     it("does not create a new file if its an unknown framework", async () => {
       expect(
-        await initializeProjections(testDirectory, "something weird")
+        await initializeConfigFile(testDirectory, "something weird")
       ).toHaveProperty("error");
 
       await expectProjectionsNotToExist();

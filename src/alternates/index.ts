@@ -6,7 +6,7 @@ import {
   errorThen
 } from "result-async";
 
-import * as ConfigFile from "../config/ConfigFile";
+import * as Config from "../config";
 errorThen;
 import {
   findExistingAlternateFile,
@@ -36,7 +36,7 @@ function findSomeAlternateFile(
 ): ResultP<string, AlternateFileNotFoundError> {
   return pipeAsync(
     userFilePath,
-    ConfigFile.lookupConfig,
+    Config.lookupConfig,
     okChain(getPossibleAlternates(userFilePath)),
     okChainAsync(findFinalAlternate(finder, userFilePath))
   );
@@ -59,4 +59,7 @@ function findFinalAlternate(finder: AlternateFinder, userFilePath: string) {
   };
 }
 
-export { AlternateFileNotFoundError, isAlternateFileNotFoundError } from "./AlternateFileNotFoundError";
+export {
+  AlternateFileNotFoundError,
+  isAlternateFileNotFoundError
+} from "./AlternateFileNotFoundError";

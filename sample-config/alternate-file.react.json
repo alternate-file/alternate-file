@@ -1,0 +1,46 @@
+[
+  {
+    "name": "React Component",
+    "path": "**/{*|isCapitalized).js",
+    "alternate": ["**/__tests__/*.test.js", "**/*.test.js"],
+    "template": ["import React from 'react';"],
+    "alternateTemplate": [
+      "import React from 'react';",
+      "import { shallow } from 'enzyme';",
+      "",
+      "describe('{filename}', () => {",
+      "  let props;",
+      "  let wrapper;",
+      "",
+      "  beforeEach(() => {",
+      "    props = {}",
+      "    wrapper = shallow(<{filename} {...props} />);",
+      "  });",
+      "",
+      "  it('renders', () => {",
+      "    expect({filename}.find('.{filename}')).toHaveLength(1);",
+      "  });",
+      "",
+      "  describe('given', () => {",
+      "    it('', () => {",
+      "      expect(true).toBe(true)",
+      "    });",
+      "  });",
+      "});"
+    ]
+  },
+  {
+    "name": "Javascript File",
+    "path": "**/{*|isLowercase).js",
+    "alternate": ["**/__tests__/*.test.js", "**/*.test.js"],
+    "alternateTemplate": [
+      "import * as {filename} from '{relativePath}';",
+      "",
+      "describe('{filename}', () => {",
+      "  it('', () => {",
+      "    expect(true).toBe(true)",
+      "  });",
+      "});"
+    ]
+  }
+]

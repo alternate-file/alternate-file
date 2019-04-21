@@ -5,7 +5,7 @@ import { map, pipe } from "../utils/utils";
 
 import { AlternateFileNotFoundError } from "./AlternateFileNotFoundError";
 import { filterOks } from "../utils/result-utils";
-import * as ConfigFile from "../config/ConfigFile";
+import * as ConfigFile from "../config";
 
 export const getPossibleAlternates = (userFilePath: string) => (
   config: ConfigFile.T

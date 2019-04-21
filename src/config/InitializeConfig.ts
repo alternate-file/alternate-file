@@ -11,28 +11,26 @@ import { pipeA } from "pipeout";
 
 import { fileExists, readFile, makeFile, ls } from "../utils/File";
 import { map, titleCase } from "../utils/utils";
-import { projectionsFilename } from "./Projections";
+import { defaultConfigFileName } from "./ConfigFile";
 
-const sampleProjectionsDirectory = path.resolve(
-  __dirname,
-  "../sample-projections"
-);
+const sampleConfigDirectory = path.resolve(__dirname, "../../sample-config");
 
 /**
- * Create a .projections.json file for a given directory, if it doesn't exist already.
- * @param currentPath
- * @param frameworkName - The name of the framework. If it's blank, creates a blank .projections.json.
- *                        If it's unknown, returns an error.
- * @returns The new projections file path.
+ * Create a .alternate-file.json5 file for a given directory, if it doesn't exist already.
+ * @param currentPath - the directory to create a config file in. Probably the project root.
+ * @param frameworkName -
+ *   The name of the framework. If it's blank, creates a blank config file.
+ *   If it's unknown, returns an error.
+ * @returns The new config file path.
  */
-export async function initializeProjections(
+export async function initializeConfigFile(
   currentPath: string,
   frameworkName: string
 ): ResultP<string, string> {
-  const projectionsPath = path.resolve(currentPath, projectionsFilename);
+  const configPath = path.resolve(currentPath, defaultConfigFileName);
 
-  if (isOk(await fileExists(projectionsPath))) {
-    return error(`${projectionsPath} already exists!`);
+  if (isOk(await fileExists(configPath))) {
+    return error(`${configPath} already exists!`);
   }
 
   // prettier-ignore
@@ -44,13 +42,13 @@ export async function initializeProjections(
       `sorry, ${frameworkName} doesn't have a default projections file yet.`
     ))
     (okChainAsync(readFile))
-    (okChainAsync(contents => makeFile(projectionsPath, contents)))
+    (okChainAsync(contents => makeFile(configPath, contents)))
     .value
 }
 
 /**
  * Get a list of known frameworks, and their human-readable names.
- * @returns a list of [name, value] pairs. Send the value to initializeProjections.
+ * @returns a list of [name, value] pairs. Send the value to initializeConfigFile.
  */
 export async function possibleFrameworks(): ResultP<
   [string, string][],
@@ -58,7 +56,7 @@ export async function possibleFrameworks(): ResultP<
 > {
   // prettier-ignore
   return pipeA
-    (sampleProjectionsDirectory)
+    (sampleConfigDirectory)
     (ls)
     (okThen(map(frameworkFromSampleFilename)))
     (okThen(frameworkNamesToTitlePair))
@@ -69,13 +67,13 @@ export async function possibleFrameworks(): ResultP<
 function sampleFileName(framework: string): string {
   const frameworkNamePart = framework ? `.${framework}` : "";
   return path.resolve(
-    sampleProjectionsDirectory,
-    `projections${frameworkNamePart}.json`
+    sampleConfigDirectory,
+    `alternate-file${frameworkNamePart}.json`
   );
 }
 
 function frameworkFromSampleFilename(fileName: string): string {
-  const matches = fileName.match(/projections(?:\.(.+))?.json/);
+  const matches = fileName.match(/alternate-file(?:\.(.+))?.json/);
 
   if (!matches) return "";
 
