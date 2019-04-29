@@ -20,7 +20,7 @@ function makeOperationTypeRegex(): RegExp {
     "|"
   );
 
-  return new RegExp(`([^{])(${typeGroup})`, "g");
+  return new RegExp(`(^|[^{])(${typeGroup})`, "g");
 }
 
 function makeSymbolRegex(names: string[], flags?: string): RegExp {

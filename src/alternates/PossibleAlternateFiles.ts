@@ -20,13 +20,16 @@ export const getPossibleAlternates = (userFilePath: string) => (
   );
 };
 
-const attemptToMatchAlternate = (userFilePath: string, rootPath: string) => (
-  fileConfig: ConfigFile.FileConfig
-): Result<AlternatePath.T, string> =>
-  AlternatePath.findAlternatePath(
-    rootPath,
-    userFilePath,
-    fileConfig.path,
-    fileConfig.alternate,
-    fileConfig.alternateTemplate
-  );
+function attemptToMatchAlternate(userFilePath: string, rootPath: string) {
+  return function(
+    fileConfig: ConfigFile.FileConfig
+  ): Result<AlternatePath.T, string> {
+    return AlternatePath.findAlternatePath(
+      rootPath,
+      userFilePath,
+      fileConfig.path,
+      fileConfig.alternate,
+      fileConfig.alternateTemplate
+    );
+  };
+}

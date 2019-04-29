@@ -2,12 +2,10 @@ import * as path from "path";
 import * as tmp from "tmp";
 import { ok, okOrThrow } from "result-async";
 
-import {
-  initializeConfigFile,
-  possibleFrameworks
-} from "./InitializeConfig";
+import { defaultConfigFileName } from "./ConfigFile";
+import { initializeConfigFile, possibleFrameworks } from "./InitializeConfig";
 import { fileExists, readFile } from "../utils/File";
-import { projectionsFilename } from "./Projections";
+// import { projectionsFilename } from "./Projections";
 
 describe("InitializeConfig", () => {
   describe("possibleFrameworks", () => {
@@ -23,17 +21,15 @@ describe("InitializeConfig", () => {
   });
   describe("initializeConfigFile", () => {
     let testDirectory: string;
-    let testProjectionsPath: string;
+    let testConfigPath: string;
     let testDirectoryCleaner: () => void;
 
-    async function expectProjectionsToExist() {
-      return expect(await fileExists(testProjectionsPath)).toHaveProperty("ok");
+    async function expectConfigToExist() {
+      return expect(await fileExists(testConfigPath)).toHaveProperty("ok");
     }
 
-    async function expectProjectionsNotToExist() {
-      return expect(await fileExists(testProjectionsPath)).toHaveProperty(
-        "error"
-      );
+    async function expectConfigNotToExist() {
+      return expect(await fileExists(testConfigPath)).toHaveProperty("error");
     }
 
     // Create a temp directory to do file operations.
@@ -42,7 +38,7 @@ describe("InitializeConfig", () => {
         if (err) throw err;
 
         testDirectory = dirPath;
-        testProjectionsPath = path.resolve(testDirectory, projectionsFilename);
+        testConfigPath = path.resolve(testDirectory, defaultConfigFileName);
         testDirectoryCleaner = cleanupCallback;
 
         done();
@@ -55,33 +51,31 @@ describe("InitializeConfig", () => {
     });
 
     it("creates a new empty file", async () => {
-      await expectProjectionsNotToExist();
+      await expectConfigNotToExist();
 
       await initializeConfigFile(testDirectory, "");
 
-      await expectProjectionsToExist();
+      await expectConfigToExist();
 
-      expect(await readFile(testProjectionsPath)).toEqual(ok("{}\n"));
+      expect(await readFile(testConfigPath)).toEqual(ok("[]\n"));
     });
 
     it("creates a new framework file", async () => {
-      await expectProjectionsNotToExist();
+      await expectConfigNotToExist();
 
-      expect(
-        await initializeConfigFile(testDirectory, "react")
-      ).toHaveProperty("ok");
-
-      await expectProjectionsToExist();
-
-      expect(okOrThrow(await readFile(testProjectionsPath))).toContain(
-        ".test.jsx"
+      expect(await initializeConfigFile(testDirectory, "react")).toHaveProperty(
+        "ok"
       );
+
+      await expectConfigToExist();
+
+      expect(okOrThrow(await readFile(testConfigPath))).toContain("React Component");
     });
 
     it("does not create a new file if there's already one", async () => {
-      expect(
-        await initializeConfigFile(testDirectory, "react")
-      ).toHaveProperty("ok");
+      expect(await initializeConfigFile(testDirectory, "react")).toHaveProperty(
+        "ok"
+      );
       expect(await initializeConfigFile(testDirectory, "")).toHaveProperty(
         "error"
       );
@@ -92,7 +86,7 @@ describe("InitializeConfig", () => {
         await initializeConfigFile(testDirectory, "something weird")
       ).toHaveProperty("error");
 
-      await expectProjectionsNotToExist();
+      await expectConfigNotToExist();
     });
 
     it("does not create a new file if its an unknown framework", async () => {
@@ -100,7 +94,7 @@ describe("InitializeConfig", () => {
         await initializeConfigFile(testDirectory, "something weird")
       ).toHaveProperty("error");
 
-      await expectProjectionsNotToExist();
+      await expectConfigNotToExist();
     });
   });
 });

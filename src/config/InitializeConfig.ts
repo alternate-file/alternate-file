@@ -16,7 +16,7 @@ import { defaultConfigFileName } from "./ConfigFile";
 const sampleConfigDirectory = path.resolve(__dirname, "../../sample-config");
 
 /**
- * Create a .alternate-file.json5 file for a given directory, if it doesn't exist already.
+ * Create a .alternate-file.json file for a given directory, if it doesn't exist already.
  * @param currentPath - the directory to create a config file in. Probably the project root.
  * @param frameworkName -
  *   The name of the framework. If it's blank, creates a blank config file.
@@ -65,10 +65,10 @@ export async function possibleFrameworks(): ResultP<
 
 /** Returns the absolute path to a framework file. */
 function sampleFileName(framework: string): string {
-  const frameworkNamePart = framework ? `.${framework}` : "";
+  const frameworkName = framework || 'empty';
   return path.resolve(
     sampleConfigDirectory,
-    `alternate-file${frameworkNamePart}.json`
+    `alternate-file.${frameworkName}.json`
   );
 }
 

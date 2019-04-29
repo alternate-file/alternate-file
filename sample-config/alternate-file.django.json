@@ -1,8 +1,8 @@
 [
   {
-    path: "**/*.py",
-    alternate: "**/test_*.py",
-    alternateTemplate: [
+    "path": "**/*.py",
+    "alternate": "**/test_*.py",
+    "alternateTemplate": [
       "from django.test import TestCase",
       "",
       "import {filename|capitalize}",

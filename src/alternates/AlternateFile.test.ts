@@ -28,6 +28,34 @@ describe("AlternatePath", () => {
       expect(errorOrThrow(alternate)).toBeTruthy();
     });
 
+    it("finds an alternate path with validations", () => {
+      const alternate = findAlternatePath(
+        "/project",
+        "/project/src/components/mine.js",
+        "src/**/{*|isLowercase}.js",
+        "src/**/__test__/{*|capitalize}.test.js"
+      );
+
+      expect(okOrThrow(alternate)).toEqual({
+        path: "/project/src/components/__test__/Mine.test.js",
+        contents: ""
+      });
+    });
+
+    it("finds an alternate path without a prefix directory", () => {
+      const alternate = findAlternatePath(
+        "/project",
+        "/project/components/mine.js",
+        "**/*.js",
+        "**/__test__/*.test.js"
+      );
+
+      expect(okOrThrow(alternate)).toEqual({
+        path: "/project/components/__test__/mine.test.js",
+        contents: ""
+      });
+    });
+
     it("fills out a template", () => {
       const alternate = findAlternatePath(
         "/project",

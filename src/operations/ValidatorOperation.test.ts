@@ -1,15 +1,15 @@
 import { runAllValidators } from "./ValidatorOperation";
-import { errorOrThrow, okOrThrow } from "result-async";
+import { error, ok } from "result-async";
 
 describe("IdentifierValidator", () => {
   describe("filterValidators", () => {
     it("validates capitalized", () => {
       const result = runAllValidators("Foo", ["isCapitalized"]);
-      expect(okOrThrow(result)).toBe("Foo");
+      expect(result).toEqual(ok("Foo"));
     });
     it("validates not capitalized", () => {
       const result = runAllValidators("foo", ["isCapitalized"]);
-      expect(errorOrThrow(result)).toBe(null);
+      expect(result).toEqual(error(null));
     });
   });
 });

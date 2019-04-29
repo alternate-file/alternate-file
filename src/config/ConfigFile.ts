@@ -17,18 +17,18 @@ import { map, flatten, pipe } from "../utils/utils";
 import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundError";
 
 import { ConfigFile, UserFileConfig, FileConfig } from "./types";
-import * as UpgradeProjects from "./UpgradeProjections";
+import * as UpgradeProjections from "./UpgradeProjections";
 
 export { ConfigFile as T };
 
 // TODO: json5 or json
 export const configFileNames = [
-  ".alternate-file.json5",
   ".alternate-file.json",
+  ".alternate-file.json5",
   Projections.projectionsFilename
 ];
 
-export const defaultConfigFileName = configFileNames[0]
+export const defaultConfigFileName = configFileNames[0];
 
 /**
  * Find the path of the alternate file (if the alternate file actually exists)
@@ -49,14 +49,15 @@ export const lookupConfig = async (
   }
 
   const configFilePath = result.ok;
+  const configFileDirectory = path.dirname(configFilePath)
   const configFileParser = isProjectionsFile(configFilePath)
-    ? parseConfigFile
-    : UpgradeProjects.parseProjectionsFile;
+    ? UpgradeProjections.parseProjectionsFile
+    : parseConfigFile;
 
   return pipeAsync(
     configFilePath,
     configFileParser,
-    okThen(combineFileConfigs(result.ok))
+    okThen(combineFileConfigs(configFileDirectory))
   );
 };
 
@@ -78,7 +79,7 @@ function findConfigFile(userFilePath: string): ResultP<string, string> {
  * @param userFilePath
  * @returns config data
  */
-const parseConfigFile = async (
+export const parseConfigFile = async (
   configFilePath: string
 ): ResultP<UserFileConfig[], AlternateFileNotFoundError> => {
   return pipeAsync(
@@ -93,7 +94,7 @@ const parseConfigFile = async (
   );
 };
 
-const combineFileConfigs = (rootPath: string) => (
+export const combineFileConfigs = (rootPath: string) => (
   fileConfigs: UserFileConfig[]
 ): ConfigFile => {
   const files = flatten(fileConfigs.map(splitOutFileAlternates));
@@ -122,8 +123,8 @@ const splitOutFileAlternates = (fileConfig: UserFileConfig): FileConfig[] => {
       })
     ),
     map((fileConfig: FileConfig) => [
-      fileConfig,
-      flipAlternateToMain(fileConfig)
+      flipAlternateToMain(fileConfig),
+      fileConfig
     ]),
     flatten
   );
