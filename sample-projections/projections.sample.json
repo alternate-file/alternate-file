@@ -5,7 +5,10 @@
     "alternate": "src/{directories}/test/{filename}.test.ts"
   },
   "src/*.ts": {
-    "alternate": ["src/{directories}/__test__/{filename}.test.ts", "src/{}.test.ts"]
+    "alternate": [
+      "src/{directories}/__test__/{filename}.test.ts",
+      "src/{}.test.ts"
+    ]
   },
   "app/*.rb": { "alternate": "spec/{}_spec.rb" }
 }

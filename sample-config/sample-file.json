@@ -49,9 +49,7 @@
     {
       "name": "Reducer",
       "path": "reducers/**/*.js",
-      "template": [
-        ""
-      ]
+      "template": [""]
     },
     {
       "name": "Javascript File",

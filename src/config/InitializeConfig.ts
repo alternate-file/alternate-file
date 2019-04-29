@@ -63,7 +63,7 @@ export async function possibleFrameworks(): ResultP<
 
 /** Returns the absolute path to a framework file. */
 function sampleFileName(framework: string): string {
-  const frameworkName = framework || 'empty';
+  const frameworkName = framework || "empty";
   return path.resolve(
     sampleConfigDirectory,
     `alternate-file.${frameworkName}.json`

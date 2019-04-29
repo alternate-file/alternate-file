@@ -49,7 +49,7 @@ export const lookupConfig = async (
   }
 
   const configFilePath = result.ok;
-  const configFileDirectory = path.dirname(configFilePath)
+  const configFileDirectory = path.dirname(configFilePath);
   const configFileParser = isProjectionsFile(configFilePath)
     ? UpgradeProjections.parseProjectionsFile
     : parseConfigFile;
