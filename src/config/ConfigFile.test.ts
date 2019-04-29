@@ -1,9 +1,9 @@
-import {} from './ConfigFile';
+import {} from "./ConfigFile";
 
-describe('ConfigFile', () => {
-  describe('given', () => {
-    it('', () => {
-      expect(true).toBe(true)
+describe("ConfigFile", () => {
+  describe("given", () => {
+    it("", () => {
+      expect(true).toBe(true);
     });
   });
 });

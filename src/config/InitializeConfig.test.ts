@@ -69,7 +69,9 @@ describe("InitializeConfig", () => {
 
       await expectConfigToExist();
 
-      expect(okOrThrow(await readFile(testConfigPath))).toContain("React Component");
+      expect(okOrThrow(await readFile(testConfigPath))).toContain(
+        "React Component"
+      );
     });
 
     it("does not create a new file if there's already one", async () => {

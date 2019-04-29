@@ -4,7 +4,4 @@ export {
   AlternateFileNotFoundError,
   isAlternateFileNotFoundError
 } from "./alternates";
-export {
-  initializeConfigFile,
-  possibleFrameworks
-} from "./config";
+export { initializeConfigFile, possibleFrameworks } from "./config";

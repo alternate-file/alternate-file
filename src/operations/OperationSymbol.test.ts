@@ -19,6 +19,5 @@ describe("OperationSymbol", () => {
         "{directories}/{filename}.js"
       );
     });
-
   });
 });
