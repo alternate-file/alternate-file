@@ -55,7 +55,7 @@
     },
     {
       "name": "Javascript File",
-      "path": "**/{*|isLowercase).js",
+      "path": "**/{*|isLowercase}.js",
       "alternate": "Javascript Test"
     },
     {

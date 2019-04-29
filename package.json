@@ -53,7 +53,7 @@
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.3.3333"
+    "typescript": "3.4.5"
   },
   "dependencies": {
     "@types/find-up": "^2.1.1",

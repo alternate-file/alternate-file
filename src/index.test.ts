@@ -4,7 +4,7 @@ import { pipeAsync, okChainAsync } from "result-async";
 
 import { fileExists, makeFile } from "./utils/File";
 
-import { findOrCreateAlternateFile, initializeProjections } from "./index";
+import { findOrCreateAlternateFile, initializeConfigFile } from "./index";
 
 describe("Integration Test", () => {
   let testDirectory: string;
@@ -23,7 +23,8 @@ describe("Integration Test", () => {
       testDirectory = dirPath;
       testDirectoryCleaner = cleanupCallback;
 
-      await initializeProjections(testDirectory, "react");
+      await initializeConfigFile(testDirectory, "react");
+
       done();
     });
   });
@@ -35,15 +36,19 @@ describe("Integration Test", () => {
 
   describe("findAlternateFile", () => {
     it("creates a file and its implementation in a new subdirectory", async () => {
-      const implementation = path.resolve(testDirectory, "main.js");
-      await pipeAsync(
+      const implementation = path.resolve(testDirectory, "src/main.js");
+      const result = await pipeAsync(
         implementation,
         makeFile,
         okChainAsync(findOrCreateAlternateFile)
       );
 
-      await expectFileToExistInTestDir("main.js");
-      await expectFileToExistInTestDir("__test__/main.test.js");
+      await expectFileToExistInTestDir("src/main.js");
+
+      expect(result).toHaveProperty("ok");
+
+      await expectFileToExistInTestDir("src/main.js");
+      await expectFileToExistInTestDir("src/__tests__/main.test.js");
     });
   });
 });

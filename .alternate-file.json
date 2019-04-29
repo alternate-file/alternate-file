@@ -1,0 +1,17 @@
+[
+  {
+    "path": "**/*.ts",
+    "alternate": ["**/*.test.ts"],
+    "alternateTemplate": [
+      "import {} from '{relativePath|noExtension}';",
+      "",
+      "describe('{filename}', () => {",
+      "  describe('given', () => {",
+      "    it('', () => {",
+      "      expect(true).toBe(true)",
+      "    });",
+      "  });",
+      "});"
+    ]
+  }
+]

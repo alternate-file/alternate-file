@@ -18,9 +18,9 @@ describe("OperationGroup", () => {
       const result = validateIdentifier(
         {
           type: OperationType.Filename,
-          operations: ["isCapitalized"]
+          operations: ["isLowercase"]
         },
-        "foo"
+        "Foo"
       );
 
       expect(errorOrThrow(result)).toBe(null);

@@ -5,6 +5,6 @@ export {
   isAlternateFileNotFoundError
 } from "./alternates";
 export {
-  initializeProjections,
+  initializeConfigFile,
   possibleFrameworks
-} from "./config/InitializeProjections";
+} from "./config";

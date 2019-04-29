@@ -6,7 +6,7 @@ import { AlternateFileNotFoundError } from "../alternates/AlternateFileNotFoundE
 
 export { Projections as T };
 
-/** the data type for the old .projections.json file. */
+/** the data type for the old .alternate-file.json file. */
 export interface Projections {
   [sourcePattern: string]: SourceData;
 }
@@ -17,7 +17,7 @@ interface SourceData {
   alternate?: string | string[];
 }
 
-export const projectionsFilename = ".projections.json";
+export const projectionsFilename = ".alternate-file.json";
 
 /**
  * Read and parse the projections file.

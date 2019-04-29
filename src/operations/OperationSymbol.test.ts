@@ -13,5 +13,12 @@ describe("OperationSymbol", () => {
         "src/{directories}/{filename|isCapitalized}.js"
       );
     });
+
+    it("sanitizes stars without a prefix", () => {
+      expect(addSymbolsToPattern("**/*.js")).toEqual(
+        "{directories}/{filename}.js"
+      );
+    });
+
   });
 });

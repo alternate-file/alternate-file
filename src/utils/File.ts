@@ -96,7 +96,7 @@ export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
     filePaths,
     map(fileExists),
     files => Promise.all(files),
-    file => firstOk(file),
+    firstOk,
     errorThen(always(filePaths))
   );
 };

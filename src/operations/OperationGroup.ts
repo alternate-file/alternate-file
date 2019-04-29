@@ -72,10 +72,12 @@ function lookupIdentifier(
   if (type === OperationType.RelativePath) {
     if (!pathToAlternate) return fileIdentifiers.absolutePath;
 
-    return path.relative(
+    const relativePath = path.relative(
       path.dirname(pathToAlternate),
       fileIdentifiers.absolutePath
     );
+
+    return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
   }
   return fileIdentifiers.absolutePath;
 }

@@ -1,7 +1,7 @@
 [
   {
     "name": "React Component",
-    "path": "**/{*|isCapitalized).js",
+    "path": "**/{*|isCapitalized}.js",
     "alternate": ["**/__tests__/*.test.js", "**/*.test.js"],
     "template": ["import React from 'react';"],
     "alternateTemplate": [
@@ -31,7 +31,7 @@
   },
   {
     "name": "Javascript File",
-    "path": "**/{*|isLowercase).js",
+    "path": "**/{*|isLowercase}.js",
     "alternate": ["**/__tests__/*.test.js", "**/*.test.js"],
     "alternateTemplate": [
       "import * as {filename} from '{relativePath}';",
