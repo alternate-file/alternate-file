@@ -22,15 +22,16 @@
     "alt": "./bin/cli.js"
   },
   "icon": "assets/icon.png",
-  "main": "./lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/alternate-file.cjs.js",
+  "module": "dist/alternate-file.js",
+  "types": "dist/index.d.ts",
   "files": [
     "lib/**/*",
     "bin/**/*",
     "sample-projections/**/*"
   ],
   "scripts": {
-    "build": "tsc -p ./",
+    "build": "rollup -c",
     "watch": "tsc -watch -p ./",
     "prepublishOnly": "npm run lint && npm test && npm run build",
     "preversion": "npm run lint && npm run test",
@@ -48,6 +49,9 @@
     "codecov": "^3.2.0",
     "jest": "^24.1.0",
     "prettier": "^1.16.4",
+    "rollup": "^1.19.4",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.22.1",
     "tmp": "^0.0.33",
     "ts-jest": "^24.0.0",
     "tslint": "^5.13.1",
@@ -56,9 +60,8 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@types/find-up": "^2.1.1",
     "@types/node": "^11.10.0",
-    "find-up": "^3.0.0",
+    "find-up": "^4.1.0",
     "minimist": "^1.2.0",
     "remeda": "0.0.9",
     "result-async": "^1.2.4"

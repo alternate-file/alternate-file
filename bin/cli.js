@@ -2,10 +2,10 @@
 
 /* tslint:disable:variable-name */
 
-const Projection = require("../lib/Projections");
-const { initializeProjections } = require("../lib/InitializeProjections");
 const { either } = require("result-async");
 const parseArgs = require("minimist");
+
+const AlternateFile = require("../dist/alternate-file");
 
 const helpMessage = `
 Usage: alternate-file filePath
@@ -19,8 +19,8 @@ Options:
 
 async function findOrCreate(args) {
   const action = args.create
-    ? Projection.findOrCreateAlternateFile
-    : Projection.findAlternateFile;
+    ? AlternateFile.findOrCreateAlternateFile
+    : AlternateFile.findAlternateFile;
 
   const fromFile = args["_"][0];
 
@@ -33,8 +33,8 @@ async function init(args) {
   const path = args._[0];
   const frameworkName = args.init;
 
-  const result = either(
-    await initializeProjections(path, frameworkName),
+  either(
+    await AlternateFile.initializeProjections(path, frameworkName),
     console.log,
     console.error
   );

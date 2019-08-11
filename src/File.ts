@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as findUp from "find-up";
+import findUp from "find-up";
 import { promisify } from "util";
 import { map } from "./utils";
 
@@ -31,7 +31,7 @@ export const findFileFrom = (fileName: string) => async (
 ): ResultP<string, string> => {
   const filePath = await findUp(fileName, { cwd: fromFilePath });
 
-  return filePath === null ? error("file not found") : ok(filePath);
+  return filePath ? ok(filePath) : error("file not found");
 };
 
 /**
