@@ -166,10 +166,16 @@ const alternatePathIfExists = (
 ) => (
   patterns: AlternatePattern.t[]
 ): ResultP<string, AlternateFileNotFoundError> => {
+  const possibleAlternatePaths = map(
+    AlternatePattern.alternatePath(userFilePath, projectionsPath)
+  );
+  const removeFailedLookups = (paths: (string | null)[]): string[] =>
+    compact(paths);
+
   return pipeAsync(
     patterns,
-    map(AlternatePattern.alternatePath(userFilePath, projectionsPath)),
-    paths => compact(paths) as string[],
+    possibleAlternatePaths,
+    removeFailedLookups,
     File.findExisting,
     errorThen((alternatesAttempted: string[]) => ({
       alternatesAttempted,
