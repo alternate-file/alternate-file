@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as findUp from "find-up";
+import findUp from "find-up";
 import { promisify } from "util";
 import { map } from "./utils";
 
@@ -12,11 +12,11 @@ import {
   ok,
   okChainAsync,
   okReplace,
-  pipeAsync,
   Result,
   resultify,
   ResultP
 } from "result-async";
+import { pipeA } from "pipeout";
 
 export type t = string;
 
@@ -31,7 +31,7 @@ export const findFileFrom = (fileName: string) => async (
 ): ResultP<string, string> => {
   const filePath = await findUp(fileName, { cwd: fromFilePath });
 
-  return filePath === null ? error("file not found") : ok(filePath);
+  return filePath ? ok(filePath) : error("file not found");
 };
 
 /**
@@ -41,11 +41,12 @@ export const findFileFrom = (fileName: string) => async (
  * @returns filePath
  */
 export async function makeFile(filePath: string, contents: string = "") {
-  return pipeAsync(
-    filePath,
-    makeDirectoryForFile,
-    okChainAsync(makeFileShallow(contents))
-  );
+  // prettier-ignore
+  return pipeA
+    (filePath)
+    (makeDirectoryForFile)
+    (okChainAsync(makeFileShallow(contents)))
+    .value
 }
 
 /**
@@ -57,11 +58,12 @@ export async function makeFile(filePath: string, contents: string = "") {
 export const makeFileShallow = (contents: string) => (
   filePath: string
 ): ResultP<string, string> => {
-  return pipeAsync(
-    writeFile(filePath, contents, { flag: "wx" }),
-    errorReplace(`${filePath} already exists`),
-    okReplace(filePath)
-  );
+  // prettier-ignore
+  return pipeA
+    (writeFile(filePath, contents, { flag: "wx" }))
+    (errorReplace(`${filePath} already exists`))
+    (okReplace(filePath))
+    .value
 };
 
 export async function makeDirectoryDeep(
@@ -78,12 +80,13 @@ export async function makeDirectoryDeep(
  * @returns ResultP<the deleted file, an error message>
  */
 export const deleteFile = (filePath: string): ResultP<string, string> => {
-  return pipeAsync(
-    filePath,
-    unlink,
-    okReplace(filePath),
-    errorReplace(`can't delete ${filePath}`)
-  );
+  // prettier-ignore
+  return pipeA
+    (filePath)
+    (unlink)
+    (okReplace(filePath))
+    (errorReplace(`can't delete ${filePath}`))
+    .value
 };
 
 /**
@@ -92,13 +95,14 @@ export const deleteFile = (filePath: string): ResultP<string, string> => {
  * @returns Ok(filePath) | Error(null)
  */
 export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
-  return pipeAsync(
-    filePaths,
-    map(fileExists),
-    files => Promise.all(files),
-    file => firstOk(file),
-    errorThen(always(filePaths))
-  );
+  // prettier-ignore
+  return pipeA
+    (filePaths)
+    (map(fileExists))
+    (files => Promise.all(files))
+    (file => firstOk(file))
+    (errorThen(always(filePaths)))
+    .value
 };
 
 /**
@@ -113,19 +117,21 @@ export const readFile = (path: string): ResultP<string, any> =>
  * @returns Ok(path) if the file exist, Error(null) if it doesn't.
  */
 export const fileExists = async (filePath: t): ResultP<t, string> => {
-  return pipeAsync(
-    access(filePath, fs.constants.R_OK),
-    okReplace(filePath),
-    errorReplace(filePath)
-  );
+  // prettier-ignore
+  return pipeA
+    (access(filePath, fs.constants.R_OK))
+    (okReplace(filePath))
+    (errorReplace(filePath))
+    .value
 };
 
 export async function ls(directoryPath: string): ResultP<string[], string> {
-  return pipeAsync(
-    directoryPath,
-    readdir,
-    errorReplace(`${directoryPath} not found`)
-  );
+  // prettier-ignore
+  return pipeA
+    (directoryPath)
+    (readdir)
+    (errorReplace(`${directoryPath} not found`))
+    .value
 }
 
 /**
@@ -150,12 +156,13 @@ export const parseJson = <T>(
  * @returns The original filePath for piping.
  */
 async function makeDirectoryForFile(filePath: string): ResultP<string, string> {
-  return pipeAsync(
-    filePath,
-    path.dirname,
-    makeDirectoryDeep,
-    okReplace(filePath)
-  );
+  // prettier-ignore
+  return pipeA
+    (filePath)
+    (path.dirname)
+    (makeDirectoryDeep)
+    (okReplace(filePath))
+    .value
 }
 
 /**

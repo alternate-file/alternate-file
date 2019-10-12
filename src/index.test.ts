@@ -1,6 +1,7 @@
 import * as path from "path";
 import * as tmp from "tmp";
-import { pipeAsync, okChainAsync } from "result-async";
+import { okChainAsync } from "result-async";
+import { pipeA } from "pipeout";
 
 import { fileExists, makeFile } from "./File";
 
@@ -36,11 +37,13 @@ describe("Integration Test", () => {
   describe("findAlternateFile", () => {
     it("creates a file and its implementation in a new subdirectory", async () => {
       const implementation = path.resolve(testDirectory, "main.js");
-      await pipeAsync(
-        implementation,
-        makeFile,
-        okChainAsync(findOrCreateAlternateFile)
-      );
+
+      // prettier-ignore
+      await pipeA
+        (implementation)
+        (makeFile)
+        (okChainAsync(findOrCreateAlternateFile))
+        .value
 
       await expectFileToExistInTestDir("main.js");
       await expectFileToExistInTestDir("__test__/main.test.js");

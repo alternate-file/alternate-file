@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": "^8.11.3"
+    "node": ">=8.11.3"
   },
   "keywords": [
     "alternate",
@@ -22,15 +22,17 @@
     "alt": "./bin/cli.js"
   },
   "icon": "assets/icon.png",
-  "main": "./lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/alternate-file.cjs.js",
+  "module": "dist/alternate-file.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "lib/**/*",
+    "src/**/*",
+    "dist/**/*",
     "bin/**/*",
     "sample-projections/**/*"
   ],
   "scripts": {
-    "build": "tsc -p ./",
+    "build": "rollup -c",
     "watch": "tsc -watch -p ./",
     "prepublishOnly": "npm run lint && npm test && npm run build",
     "preversion": "npm run lint && npm run test",
@@ -44,23 +46,26 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.9",
-    "@types/tmp": "^0.0.34",
-    "codecov": "^3.2.0",
+    "@types/tmp": "^0.1.0",
+    "codecov": "^3.6.0",
     "jest": "^24.1.0",
-    "prettier": "^1.16.4",
-    "tmp": "^0.0.33",
+    "prettier": "^1.18.2",
+    "rollup": "^1.23.1",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.24.3",
+    "tmp": "^0.1.0",
     "ts-jest": "^24.0.0",
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.6.4"
   },
   "dependencies": {
-    "@types/find-up": "^2.1.1",
-    "@types/node": "^11.10.0",
-    "find-up": "^3.0.0",
+    "@types/node": "^12.7.0",
+    "find-up": "^4.1.0",
     "minimist": "^1.2.0",
-    "remeda": "0.0.9",
-    "result-async": "^1.2.1"
+    "pipeout": "^0.0.2",
+    "result-async": "^1.3.0"
   }
 }
