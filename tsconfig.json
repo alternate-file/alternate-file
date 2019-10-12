@@ -18,5 +18,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedParameters": true
   },
-  "exclude": ["node_modules", "test-project", "lib"]
+  "exclude": ["node_modules", "test-project", "dist"]
 }
