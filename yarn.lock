@@ -3145,10 +3145,10 @@ resolve@1.12.0, resolve@1.x, resolve@^1.10.0, resolve@^1.11.0, resolve@^1.11.1, 
   dependencies:
     path-parse "^1.0.6"
 
-result-async@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/result-async/-/result-async-1.2.5.tgz#bdc45467f1d00dd28394743a189af5eeb867513d"
-  integrity sha512-9d9BNX0Pn7WzS0IXQJXNU8yA+rFQrGDweT04RzwVSWOwXeMKzOr30swTgbWOgFDrE6sGBQekDumvltmrwwDaHQ==
+result-async@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/result-async/-/result-async-1.3.0.tgz#85052f43d8a311e328c504105caded7fb396ea1f"
+  integrity sha512-jpc4mRSlB2av9pz/9F5VLpmqL/iKqYD0z1ySbmpaT68ffbspuydIRj6ECmu/i5m+Bq43BDDYl2W/95uwnd8F1A==
 
 ret@~0.1.10:
   version "0.1.15"
@@ -3619,9 +3619,9 @@ tmp@^0.1.0:
     rimraf "^2.6.3"
 
 tmpl@1.0.x:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.4.tgz#23640dd7b42d00433911140820e5cf440e521dd1"
-  integrity sha1-I2QN17QtAEM5ERQIIOXPRA5SHdE=
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/tmpl/-/tmpl-1.0.5.tgz#8683e0b902bb9c20c4f726e3c0b69f36518c07cc"
+  integrity sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==
 
 to-fast-properties@^2.0.0:
   version "2.0.0"
