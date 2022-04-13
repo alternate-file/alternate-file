@@ -4,7 +4,7 @@ import { ok, okOrThrow } from "result-async";
 
 import {
   initializeProjections,
-  possibleFrameworks
+  possibleFrameworks,
 } from "./InitializeProjections";
 import { fileExists, readFile } from "./File";
 import { projectionsFilename } from "./Projections";
@@ -37,7 +37,7 @@ describe("InitializeProjections", () => {
     }
 
     // Create a temp directory to do file operations.
-    beforeEach(done => {
+    beforeEach((done) => {
       tmp.dir({ unsafeCleanup: true }, (err, dirPath, cleanupCallback) => {
         if (err) throw err;
 

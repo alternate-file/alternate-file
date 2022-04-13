@@ -3,18 +3,20 @@
  * @param args - Varadic args to tag the log with.
  * @param data - Final data to console.log
  */
-export const log = (...args: any[]) => <T>(data: T): T => {
-  const logArgs = args.concat([data]);
-  console.log(...logArgs);
-  return data;
-};
+export const log =
+  (...args: any[]) =>
+  <T>(data: T): T => {
+    const logArgs = args.concat([data]);
+    console.log(...logArgs);
+    return data;
+  };
 
 /**
  * Async sleep
  * @param milliseconds
  */
 export const sleep = (milliseconds: number): Promise<number> => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds));
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
 
 /**
@@ -34,18 +36,22 @@ export const zip = <T, U>(array1: T[], array2: U[]): [T, U][] =>
  * @param replaceValue  - The value to replace the pattern with
  * @returns the updated string.
  */
-export const replace = (searchValue: RegExp | string, replaceValue: string) => (
-  oldString: string
-): string => oldString.replace(searchValue, replaceValue);
+export const replace =
+  (searchValue: RegExp | string, replaceValue: string) =>
+  (oldString: string): string =>
+    oldString.replace(searchValue, replaceValue);
 
-export const map = <T, U>(f: (x: T) => U) => (xs: T[]): U[] => xs.map(f);
+export const map =
+  <T, U>(f: (x: T) => U) =>
+  (xs: T[]): U[] =>
+    xs.map(f);
 
 /** Convert an object to a list of tuples. */
 export function toPairs<Value>(dictionary: {
   [key: string]: Value;
 }): [string, Value][] {
   return Object.keys(dictionary).map(
-    key => [key, dictionary[key]] as [string, Value]
+    (key) => [key, dictionary[key]] as [string, Value]
   );
 }
 
@@ -68,7 +74,7 @@ export function filter<T>(f: (x: T) => boolean, xs: T[]): T[] {
 }
 
 export function reject<T>(f: (x: T) => boolean, xs: T[]): T[] {
-  return filter(x => !f(x), xs);
+  return filter((x) => !f(x), xs);
 }
 
 export function isNil(x: any): boolean {

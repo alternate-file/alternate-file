@@ -1,13 +1,13 @@
 export {
   findAlternateFile,
   findOrCreateAlternateFile,
-  Projections
+  Projections,
 } from "./Projections";
 export {
   AlternateFileNotFoundError,
-  isAlternateFileNotFoundError
+  isAlternateFileNotFoundError,
 } from "./AlternateFileNotFoundError";
 export {
   initializeProjections,
-  possibleFrameworks
+  possibleFrameworks,
 } from "./InitializeProjections";

@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import findUp from "find-up";
+import { findUp } from "find-up";
 import { promisify } from "util";
 import { map } from "./utils";
 
@@ -14,7 +14,7 @@ import {
   okReplace,
   Result,
   resultify,
-  ResultP
+  ResultP,
 } from "result-async";
 import { pipeA } from "pipeout";
 
@@ -26,13 +26,13 @@ export type t = string;
  * @param fromFilePath - The file to start looking from
  * @return the full path/"not found"
  */
-export const findFileFrom = (fileName: string) => async (
-  fromFilePath: string
-): ResultP<string, string> => {
-  const filePath = await findUp(fileName, { cwd: fromFilePath });
+export const findFileFrom =
+  (fileName: string) =>
+  async (fromFilePath: string): ResultP<string, string> => {
+    const filePath = await findUp(fileName, { cwd: fromFilePath });
 
-  return filePath ? ok(filePath) : error("file not found");
-};
+    return filePath ? ok(filePath) : error("file not found");
+  };
 
 /**
  * Create a new file, with contents. Also creates the path if necessary.
@@ -40,13 +40,13 @@ export const findFileFrom = (fileName: string) => async (
  * @param contents
  * @returns filePath
  */
-export async function makeFile(filePath: string, contents: string = "") {
+export async function makeFile(filePath: string, contents = "") {
   // prettier-ignore
   return pipeA
     (filePath)
-    (makeDirectoryForFile)
-    (okChainAsync(makeFileShallow(contents)))
-    .value
+    .thru(makeDirectoryForFile)
+    .thru(okChainAsync(makeFileShallow(contents)))
+    .value()
 }
 
 /**
@@ -55,16 +55,15 @@ export async function makeFile(filePath: string, contents: string = "") {
  * @param contents
  * @returns filePath
  */
-export const makeFileShallow = (contents: string) => (
-  filePath: string
-): ResultP<string, string> => {
-  // prettier-ignore
-  return pipeA
-    (writeFile(filePath, contents, { flag: "wx" }))
-    (errorReplace(`${filePath} already exists`))
-    (okReplace(filePath))
-    .value
-};
+export const makeFileShallow =
+  (contents: string) =>
+  (filePath: string): ResultP<string, string> => {
+    // prettier-ignore
+    return pipeA(writeFile(filePath, contents, { flag: "wx" }))
+    .thru(errorReplace(`${filePath} already exists`))
+    .thru(okReplace(filePath))
+    .value()
+  };
 
 export async function makeDirectoryDeep(
   dirPath: string
@@ -82,11 +81,11 @@ export async function makeDirectoryDeep(
 export const deleteFile = (filePath: string): ResultP<string, string> => {
   // prettier-ignore
   return pipeA
-    (filePath)
-    (unlink)
-    (okReplace(filePath))
-    (errorReplace(`can't delete ${filePath}`))
-    .value
+				(filePath)
+    .thru(unlink)
+    .thru(okReplace(filePath))
+    .thru(errorReplace(`can't delete ${filePath}`))
+    .value()
 };
 
 /**
@@ -98,11 +97,11 @@ export const findExisting = async (filePaths: t[]): ResultP<t, string[]> => {
   // prettier-ignore
   return pipeA
     (filePaths)
-    (map(fileExists))
-    (files => Promise.all(files))
-    (file => firstOk(file))
-    (errorThen(always(filePaths)))
-    .value
+    .thru(map(fileExists))
+    .thru(files => Promise.all(files))
+    .thru(file => firstOk(file))
+    .thru(errorThen(always(filePaths)))
+    .value()
 };
 
 /**
@@ -120,18 +119,18 @@ export const fileExists = async (filePath: t): ResultP<t, string> => {
   // prettier-ignore
   return pipeA
     (access(filePath, fs.constants.R_OK))
-    (okReplace(filePath))
-    (errorReplace(filePath))
-    .value
+    .thru(okReplace(filePath))
+    .thru(errorReplace(filePath))
+    .value()
 };
 
 export async function ls(directoryPath: string): ResultP<string[], string> {
   // prettier-ignore
   return pipeA
     (directoryPath)
-    (readdir)
-    (errorReplace(`${directoryPath} not found`))
-    .value
+    .thru(readdir)
+    .thru(errorReplace(`${directoryPath} not found`))
+    .value()
 }
 
 /**
@@ -145,7 +144,8 @@ export const parseJson = <T>(
   try {
     return ok(JSON.parse(data));
   } catch (e) {
-    const message = `Couldn't parse ${fileName || "file"}: ${e.message}`;
+    const err = e as Error;
+    const message = `Couldn't parse ${fileName || "file"}: ${err.message}`;
     return error(message);
   }
 };
@@ -159,10 +159,10 @@ async function makeDirectoryForFile(filePath: string): ResultP<string, string> {
   // prettier-ignore
   return pipeA
     (filePath)
-    (path.dirname)
-    (makeDirectoryDeep)
-    (okReplace(filePath))
-    .value
+    .thru(path.dirname)
+    .thru(makeDirectoryDeep)
+    .thru(okReplace(filePath))
+    .value()
 }
 
 /**
@@ -180,4 +180,7 @@ const readdir: (path: string) => ResultP<string[], any> = resultify(
   (path: string) => readdirP(path)
 );
 
-const always = <T>(x: T) => (..._args: any[]) => x;
+const always =
+  <T>(x: T) =>
+  (..._args: any[]) =>
+    x;

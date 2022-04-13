@@ -3,9 +3,11 @@ import * as utils from "./utils";
 describe("utils", () => {
   describe("log", () => {
     it("returns the passing in data", () => {
-      jest
-        .spyOn(console, "log")
-        .mockImplementation((..._args: any[]) => (x: any) => x);
+      jest.spyOn(console, "log").mockImplementation(
+        (..._args: any[]) =>
+          (x: any) =>
+            x
+      );
 
       expect(utils.log("a test")(1)).toBe(1);
     });
@@ -13,7 +15,11 @@ describe("utils", () => {
 
   describe("zip", () => {
     it("zips two arrays", () => {
-      expect(utils.zip([1, 2, 3], [4, 5, 6])).toEqual([[1, 4], [2, 5], [3, 6]]);
+      expect(utils.zip([1, 2, 3], [4, 5, 6])).toEqual([
+        [1, 4],
+        [2, 5],
+        [3, 6],
+      ]);
     });
   });
 
@@ -28,15 +34,21 @@ describe("utils", () => {
     it("converts a dictionary to pairs", () => {
       const dictionary = {
         a: 1,
-        b: 2
+        b: 2,
       };
-      expect(utils.toPairs(dictionary)).toEqual([["a", 1], ["b", 2]]);
+      expect(utils.toPairs(dictionary)).toEqual([
+        ["a", 1],
+        ["b", 2],
+      ]);
     });
   });
 
   describe("flatten", () => {
     it("flattens a deep list once", () => {
-      const list = [[1, 2], [3, [4, 5], 6]];
+      const list = [
+        [1, 2],
+        [3, [4, 5], 6],
+      ];
       expect(utils.flatten(list)).toEqual([1, 2, 3, [4, 5], 6]);
     });
   });

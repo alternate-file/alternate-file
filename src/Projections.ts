@@ -12,7 +12,7 @@ import {
   error,
   either,
   okThen,
-  errorRescueAsync
+  errorRescueAsync,
 } from "result-async";
 import { pipeA } from "pipeout";
 import { map, toPairs, flatten, compact } from "./utils";
@@ -49,18 +49,22 @@ export const findAlternateFile = async (
   if (!isOk(result)) {
     return error({
       message: `No ${projectionsFilename} found as a parent of ${userFilePath}`,
-      startingFile: userFilePath
+      startingFile: userFilePath,
     });
   }
 
   const projectionsPath = result.ok;
   const normalizedUserFilePath = path.resolve(userFilePath);
 
-  return pipeA(projectionsPath)(readProjections)(
-    okThen(projectionsToAlternatePatterns)
-  )(
-    okChainAsync(alternatePathIfExists(normalizedUserFilePath, projectionsPath))
-  ).value;
+  return pipeA(projectionsPath)
+    .thru(readProjections)
+    .thru(okThen(projectionsToAlternatePatterns))
+    .thru(
+      okChainAsync(
+        alternatePathIfExists(normalizedUserFilePath, projectionsPath)
+      )
+    )
+    .value();
 };
 
 /**
@@ -77,7 +81,7 @@ export const findOrCreateAlternateFile = async (
     if (alternatesAttempted.length === 0) {
       return error({
         ...err,
-        message: `Couldn't create an alternate file for '${userFilePath}': it didn't match any known patterns.`
+        message: `Couldn't create an alternate file for '${userFilePath}': it didn't match any known patterns.`,
       });
     }
 
@@ -89,18 +93,16 @@ export const findOrCreateAlternateFile = async (
       always(
         error({
           ...err,
-          message: `Couldn't create file ${newAlternateFile}`
+          message: `Couldn't create file ${newAlternateFile}`,
         })
       )
     );
   };
 
-  // prettier-ignore
-  return pipeA
-    (userFilePath)
-    (findAlternateFile)
-    (errorRescueAsync(onError))
-    .value
+  return pipeA(userFilePath)
+    .thru(findAlternateFile)
+    .thru(errorRescueAsync(onError))
+    .value();
 };
 
 /**
@@ -123,23 +125,25 @@ export const findProjectionsFile = async (userFilePath: string) =>
 
 /**
  * Read and parse the projections file.
- * @param userFilePath
+ * @param projectionsPath
  * @returns projections data
  */
 export const readProjections = async (
   projectionsPath: string
 ): ResultP<Projections, AlternateFileNotFoundError> => {
-  // prettier-ignore
-  return pipeA
-    (projectionsPath)
-    (File.readFile)
-    (okThen((data: string): string => (data === "" ? "{}" : data)))
-    (okChain((x: string) => File.parseJson<Projections>(x, projectionsPath)))
-    (errorThen((err: string) => ({
-      startingFile: projectionsPath,
-      message: err
-    })))
-    .value
+  return pipeA(projectionsPath)
+    .thru(File.readFile)
+    .thru(okThen((data: string): string => (data === "" ? "{}" : data)))
+    .thru(
+      okChain((x: string) => File.parseJson<Projections>(x, projectionsPath))
+    )
+    .thru(
+      errorThen((err: string) => ({
+        startingFile: projectionsPath,
+        message: err,
+      }))
+    )
+    .value();
 };
 
 const splitOutAlternates = (pair: ProjectionPair): SingleProjectionPair[] => {
@@ -147,7 +151,7 @@ const splitOutAlternates = (pair: ProjectionPair): SingleProjectionPair[] => {
 
   if (Array.isArray(alternate)) {
     return alternate.map(
-      foo => [main, { alternate: foo }] as SingleProjectionPair
+      (foo) => [main, { alternate: foo }] as SingleProjectionPair
     );
   }
 
@@ -163,38 +167,37 @@ const splitOutAlternates = (pair: ProjectionPair): SingleProjectionPair[] => {
  * @param userFilePath - A file path to find an alternate file for.
  * @param patterns - Alternate Patterns from a projections file.
  */
-const alternatePathIfExists = (
-  userFilePath: string,
-  projectionsPath: string
-) => (
-  patterns: AlternatePattern.t[]
-): ResultP<string, AlternateFileNotFoundError> => {
-  const possibleAlternatePaths = map(
-    AlternatePattern.alternatePath(userFilePath, projectionsPath)
-  );
-  const removeFailedLookups = (paths: (string | null)[]): string[] =>
-    compact(paths);
+const alternatePathIfExists =
+  (userFilePath: string, projectionsPath: string) =>
+  (
+    patterns: AlternatePattern.t[]
+  ): ResultP<string, AlternateFileNotFoundError> => {
+    const possibleAlternatePaths = map(
+      AlternatePattern.alternatePath(userFilePath, projectionsPath)
+    );
+    const removeFailedLookups = (paths: (string | null)[]): string[] =>
+      compact(paths);
 
-  // prettier-ignore
-  return pipeA
+    // prettier-ignore
+    return pipeA
     (patterns)
-    (possibleAlternatePaths)
-    (removeFailedLookups)
-    (File.findExisting)
-    (errorThen((alternatesAttempted: string[]) => ({
+    .thru(possibleAlternatePaths)
+    .thru(removeFailedLookups)
+    .thru(File.findExisting)
+    .thru(errorThen((alternatesAttempted: string[]) => ({
       alternatesAttempted,
       message: `No alternate found for ${userFilePath}. Tried: ${alternatesAttempted}`,
       startingFile: userFilePath
     })))
-    .value
-};
+    .value()
+  };
 
 const projectionPairToAlternatePattern = ([
   main,
-  { alternate }
+  { alternate },
 ]: SingleProjectionPair): AlternatePattern.t => ({
   main: mainPathToAlternate(main),
-  alternate: alternatePathToAlternate(alternate)
+  alternate: alternatePathToAlternate(alternate),
 });
 
 const mainPathToAlternate = (path: string): string => {
@@ -215,4 +218,7 @@ const alternatePathToAlternate = (path: string): string => {
   return path.replace(/\{\}/g, "{dirname}/{basename}");
 };
 
-const always = <T>(x: T) => (): T => x;
+const always =
+  <T>(x: T) =>
+  (): T =>
+    x;

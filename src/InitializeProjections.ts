@@ -5,7 +5,7 @@ import {
   error,
   errorReplace,
   ResultP,
-  okChainAsync
+  okChainAsync,
 } from "result-async";
 import { pipeA } from "pipeout";
 
@@ -38,14 +38,12 @@ export async function initializeProjections(
   // prettier-ignore
   return pipeA
     (frameworkName)
-    (sampleFileName)
-    (fileExists)
-    (errorReplace(
-      `sorry, ${frameworkName} doesn't have a default projections file yet.`
-    ))
-    (okChainAsync(readFile))
-    (okChainAsync(contents => makeFile(projectionsPath, contents)))
-    .value
+    .thru(sampleFileName)
+    .thru(fileExists)
+    .thru(errorReplace( `sorry, ${frameworkName} doesn't have a default projections file yet.`))
+    .thru(okChainAsync(readFile))
+    .thru(okChainAsync(contents => makeFile(projectionsPath, contents)))
+    .value()
 }
 
 /**
@@ -59,10 +57,10 @@ export async function possibleFrameworks(): ResultP<
   // prettier-ignore
   return pipeA
     (sampleProjectionsDirectory)
-    (ls)
-    (okThen(map(frameworkFromSampleFilename)))
-    (okThen(frameworkNamesToTitlePair))
-    .value
+			.thru(ls)
+			.thru(okThen(map(frameworkFromSampleFilename)))
+			.thru(okThen(frameworkNamesToTitlePair))
+    .value()
 }
 
 /** Returns the absolute path to a framework file. */
@@ -83,7 +81,7 @@ function frameworkFromSampleFilename(fileName: string): string {
 }
 
 function frameworkNamesToTitlePair(frameworks: string[]): [string, string][] {
-  return frameworks.sort().map(framework => {
+  return frameworks.sort().map((framework) => {
     const name = framework ? titleCase(framework) : "Empty";
     return [name, framework] as [string, string];
   });

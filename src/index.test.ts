@@ -17,7 +17,7 @@ describe("Integration Test", () => {
   }
 
   // Create a temp directory to do file operations.
-  beforeEach(done => {
+  beforeEach((done) => {
     tmp.dir({ unsafeCleanup: true }, async (err, dirPath, cleanupCallback) => {
       if (err) throw err;
 
@@ -41,9 +41,9 @@ describe("Integration Test", () => {
       // prettier-ignore
       await pipeA
         (implementation)
-        (makeFile)
-        (okChainAsync(findOrCreateAlternateFile))
-        .value
+        .thru(makeFile)
+        .thru(okChainAsync(findOrCreateAlternateFile))
+        .value()
 
       await expectFileToExistInTestDir("main.js");
       await expectFileToExistInTestDir("__test__/main.test.js");

@@ -4,16 +4,16 @@ describe("AlternatePattern", () => {
   const patterns: AlternatePattern.t[] = [
     {
       main: "src/{dirname}/{basename}.ts",
-      alternate: "src/{dirname}/__test__/{basename}.test.ts"
+      alternate: "src/{dirname}/__test__/{basename}.test.ts",
     },
     {
       main: "app/{dirname}/{basename}.rb",
-      alternate: "test/{dirname}/{basename}_spec.rb"
+      alternate: "test/{dirname}/{basename}_spec.rb",
     },
     {
       main: "apps/{dirname}/lib/{dirname}/{basename}.ex",
-      alternate: "apps/{dirname}/test/{dirname}/{basename}_test.exs"
-    }
+      alternate: "apps/{dirname}/test/{dirname}/{basename}_test.exs",
+    },
   ];
 
   // const projectionsPath = path.resolve("./test-project/.projections.json");
@@ -31,9 +31,10 @@ describe("AlternatePattern", () => {
 
     it("finds alternate for short path", () => {
       expect(
-        AlternatePattern.alternatePath("/project/app/foo.rb", projectionsPath)(
-          patterns[1]
-        )
+        AlternatePattern.alternatePath(
+          "/project/app/foo.rb",
+          projectionsPath
+        )(patterns[1])
       ).toBe("/project/test/foo_spec.rb");
     });
 
@@ -48,9 +49,10 @@ describe("AlternatePattern", () => {
 
     it("returns null for non-matches", () => {
       expect(
-        AlternatePattern.alternatePath("/project/src/foo.rb", projectionsPath)(
-          patterns[0]
-        )
+        AlternatePattern.alternatePath(
+          "/project/src/foo.rb",
+          projectionsPath
+        )(patterns[0])
       ).toBe(null);
     });
 

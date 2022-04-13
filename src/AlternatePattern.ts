@@ -33,12 +33,11 @@ const basenamePattern = `(${notSlash}+)`;
  * @param projectionsPath - the absolute path to the projections file
  * @param alternatePath - the AlternatePath object to match against.
  */
-export const alternatePath = (path: string, projectionsPath: string) => ({
-  main,
-  alternate
-}: t): string | null =>
-  alternatePathForSide(alternate, main, path, projectionsPath) ||
-  alternatePathForSide(main, alternate, path, projectionsPath);
+export const alternatePath =
+  (path: string, projectionsPath: string) =>
+  ({ main, alternate }: t): string | null =>
+    alternatePathForSide(alternate, main, path, projectionsPath) ||
+    alternatePathForSide(main, alternate, path, projectionsPath);
 
 const alternatePathForSide = (
   pathPattern: string,
