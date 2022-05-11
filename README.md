@@ -17,7 +17,7 @@ Each line should have the pattern for an implementation file as the key, and an 
 
 ### Split paths
 
-If your test paths have an extra directly in the middle of them, like with `app/some/path/__test__/file.test.js` with Jest, you can use `{dirname}` for the directory path and `{basename}` for the filename. You can do the same thing on the implementation side with the standard glob syntax: `**` to represent the directory path, and `*` to represent the filename, like `app/**/something/*.js`.
+If your test paths have an extra directory in the middle of them, like with `app/some/path/__test__/file.test.js` with Jest, you can use `{dirname}` for the directory path and `{basename}` for the filename. You can do the same thing on the implementation side with the standard glob syntax: `**` to represent the directory path, and `*` to represent the filename, like `app/**/something/*.js`.
 
 If your paths have more than two variable parts, that can work too! You can use multiple sets of `**`/`{dirname}` pairs, which allows you to do something like:
 
