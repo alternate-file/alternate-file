@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { findUp } from "find-up";
+import findUp from "find-up";
 import { promisify } from "util";
 import { map } from "./utils";
 
