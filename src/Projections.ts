@@ -155,7 +155,7 @@ const splitOutAlternates = (pair: ProjectionPair): SingleProjectionPair[] => {
     return [[main, { alternate }]] as SingleProjectionPair[];
   }
 
-  throw new Error(`${main} is missing the alternate key`);
+  return [];
 };
 
 /**
